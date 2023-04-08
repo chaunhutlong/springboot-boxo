@@ -1,10 +1,11 @@
 package com.springboot.boxo.service;
 
+import com.springboot.boxo.payload.AuthResponse;
 import com.springboot.boxo.payload.LoginDto;
 import com.springboot.boxo.payload.RegisterDto;
 
 public interface AuthService {
-    String login(LoginDto loginDto);
+    AuthResponse loginWithIdentityAndPassword(LoginDto loginDto);
 
-    String register(RegisterDto registerDto);
+    AuthResponse register(RegisterDto registerDto);
 }

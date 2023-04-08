@@ -1,6 +1,6 @@
 package com.springboot.boxo.controller;
 
-import com.springboot.boxo.payload.JWTAuthResponse;
+import com.springboot.boxo.payload.AuthResponse;
 import com.springboot.boxo.payload.LoginDto;
 import com.springboot.boxo.payload.RegisterDto;
 import com.springboot.boxo.service.AuthService;
@@ -23,19 +23,13 @@ public class AuthController {
 
     // Build Login REST API
     @PostMapping(value = {"/login", "/sign-in"})
-    public ResponseEntity<JWTAuthResponse> login(@RequestBody LoginDto loginDto){
-        String token = authService.login(loginDto);
-
-        JWTAuthResponse jwtAuthResponse = new JWTAuthResponse();
-        jwtAuthResponse.setAccessToken(token);
-
-        return ResponseEntity.ok(jwtAuthResponse);
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginDto loginDto){
+        return ResponseEntity.ok(authService.loginWithIdentityAndPassword(loginDto));
     }
 
     // Build Register REST API
     @PostMapping(value = {"/register", "/signup"})
-    public ResponseEntity<String> register(@RequestBody RegisterDto registerDto){
-        String response = authService.register(registerDto);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterDto registerDto){
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(registerDto));
     }
 }

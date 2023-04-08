@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -23,16 +24,14 @@ public class JwtTokenProvider {
 
     // generate JWT token
     public String generateToken(Authentication authentication) {
-        String username = authentication.getName();
-
-        Date currentDate = new Date();
-
-        Date expireDate = new Date(currentDate.getTime() + jwtExpirationDate);
+        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationDate);
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(userPrincipal.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(expireDate)
+                .setExpiration(expiryDate)
                 .signWith(key())
                 .compact();
     }
@@ -43,8 +42,8 @@ public class JwtTokenProvider {
         );
     }
 
-    // get username from Jwt token
-    public String getUsername(String token) {
+    // get identity from Jwt token
+    public String getIdentityFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build()
