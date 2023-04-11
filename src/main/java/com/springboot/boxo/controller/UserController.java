@@ -9,16 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("${spring.data.rest.base-path}/users")
 public class UserController {
-
         private final UserService userService;
-
         public UserController(UserService userService) {
             this.userService = userService;
         }
 
-        // Build Get User By Username Or Email REST API
         @GetMapping("{identity}")
         public ResponseEntity<UserDto> getUserByIdentity(@PathVariable String identity){
             return ResponseEntity.ok(userService.findByIdentity(identity));

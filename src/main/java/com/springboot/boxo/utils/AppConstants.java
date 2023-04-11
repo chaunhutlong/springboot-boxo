@@ -1,7 +1,7 @@
 package com.springboot.boxo.utils;
 
-public class AppConstraints {
-    private AppConstraints() {
+public class AppConstants {
+    private AppConstants() {
         throw new IllegalStateException("Utility class");
     }
     public static final String DEFAULT_PAGE_NUMBER = "0";

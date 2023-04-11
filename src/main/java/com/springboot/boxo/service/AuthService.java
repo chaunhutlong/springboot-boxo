@@ -6,6 +6,5 @@ import com.springboot.boxo.payload.RegisterDto;
 
 public interface AuthService {
     AuthResponse loginWithIdentityAndPassword(LoginDto loginDto);
-
     AuthResponse register(RegisterDto registerDto);
 }
