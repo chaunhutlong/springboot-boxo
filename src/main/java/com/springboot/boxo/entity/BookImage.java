@@ -1,5 +1,6 @@
 package com.springboot.boxo.entity;
 
+import com.springboot.boxo.enums.ImageType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,6 +17,9 @@ public class BookImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private ImageType imageType;
     private String keyImage;
 
     @ManyToOne

@@ -9,8 +9,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GenreResponse {
-    private List<GenreDto> content;
+public class PaginationResponse<T> {
+    private List<T> content;
     private int pageNumber;
     private int pageSize;
     private long totalElements;

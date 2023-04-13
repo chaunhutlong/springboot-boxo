@@ -1,8 +1,8 @@
 package com.springboot.boxo.controller;
 
 import com.springboot.boxo.payload.AuthResponse;
-import com.springboot.boxo.payload.LoginDto;
-import com.springboot.boxo.payload.RegisterDto;
+import com.springboot.boxo.payload.LoginRequest;
+import com.springboot.boxo.payload.RegisterRequest;
 import com.springboot.boxo.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +23,13 @@ public class AuthController {
 
     // Build Login REST API
     @PostMapping(value = {"/login", "/sign-in"})
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginDto loginDto){
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginDto){
         return ResponseEntity.ok(authService.loginWithIdentityAndPassword(loginDto));
     }
 
     // Build Register REST API
     @PostMapping(value = {"/register", "/signup"})
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterDto registerDto){
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest registerDto){
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(registerDto));
     }
 }
