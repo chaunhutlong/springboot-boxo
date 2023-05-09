@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.jpa.domain.AbstractAuditable;
 
 import javax.validation.constraints.Pattern;
 
@@ -16,7 +15,7 @@ import javax.validation.constraints.Pattern;
 @AllArgsConstructor
 @Entity
 @Table(name = "addresses")
-public class Address extends AbstractAuditable<User, Long> {
+public class Address extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

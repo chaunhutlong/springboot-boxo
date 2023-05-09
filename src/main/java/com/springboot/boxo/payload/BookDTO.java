@@ -16,8 +16,8 @@ public class BookDTO {
     private int quantity;
     private float price;
     private float priceDiscount;
-    private Long publisherId;
-    private Set<Long> authorIds;
-    private Set<Long> genreIds;
+    private PublisherDTO publisher;
+    private Set<AuthorDTO> authors;
+    private Set<GenreDTO> genres;
 
 }

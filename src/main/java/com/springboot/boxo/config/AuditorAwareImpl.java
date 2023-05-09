@@ -1,22 +1,21 @@
 package com.springboot.boxo.config;
 
-import com.springboot.boxo.entity.User;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
 import java.util.Optional;
 
-class AuditorAwareImpl implements AuditorAware<User> {
+public class AuditorAwareImpl implements AuditorAware<String> {
+
     @Override
-    public @NotNull Optional<User> getCurrentAuditor() {
+    public @NotNull Optional<String> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return Optional.empty();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return Optional.of(authentication.getName());
         }
 
-        return Optional.of((User) authentication.getPrincipal());
+        return Optional.empty();
     }
 }

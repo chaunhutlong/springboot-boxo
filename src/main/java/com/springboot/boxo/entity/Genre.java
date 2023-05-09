@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.jpa.domain.AbstractAuditable;
 
 @Getter
 @Setter
@@ -13,7 +12,7 @@ import org.springframework.data.jpa.domain.AbstractAuditable;
 @AllArgsConstructor
 @Entity
 @Table(name = "genres")
-public class Genre extends AbstractAuditable<User, Long> {
+public class Genre extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

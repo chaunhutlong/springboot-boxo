@@ -1,6 +1,6 @@
 package com.springboot.boxo.controller;
 
-import com.springboot.boxo.payload.GenreDto;
+import com.springboot.boxo.payload.GenreDTO;
 import com.springboot.boxo.payload.GenreRequest;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.service.GenreService;
@@ -24,12 +24,12 @@ public class GenreController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<GenreDto> createGenre(@Valid @RequestBody GenreRequest genreRequest) {
+    public ResponseEntity<GenreDTO> createGenre(@Valid @RequestBody GenreRequest genreRequest) {
         return ResponseEntity.ok(genreService.createGenre(genreRequest));
     }
 
     @GetMapping
-    public ResponseEntity<PaginationResponse<GenreDto>> getAllGenres(
+    public ResponseEntity<PaginationResponse<GenreDTO>> getAllGenres(
             @RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
@@ -39,13 +39,13 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GenreDto> getGenreById(@PathVariable(value = "id") Long id) {
+    public ResponseEntity<GenreDTO> getGenreById(@PathVariable(value = "id") Long id) {
         return ResponseEntity.ok(genreService.getGenreById(id));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<GenreDto> updateGenre(@PathVariable(value = "id") Long id,
+    public ResponseEntity<GenreDTO> updateGenre(@PathVariable(value = "id") Long id,
                                                 @Valid @RequestBody GenreRequest genreRequest) {
         return ResponseEntity.ok(genreService.updateGenre(id, genreRequest));
     }

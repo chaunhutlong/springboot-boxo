@@ -1,7 +1,7 @@
 package com.springboot.boxo.service.impl;
 
 import com.springboot.boxo.entity.Genre;
-import com.springboot.boxo.payload.GenreDto;
+import com.springboot.boxo.payload.GenreDTO;
 import com.springboot.boxo.payload.GenreRequest;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.repository.GenreRepository;
@@ -26,31 +26,31 @@ public class GenreServiceImpl implements GenreService {
         this.modelMapper = modelMapper;
     }
     @Override
-    public GenreDto createGenre(GenreRequest genreRequest) {
+    public GenreDTO createGenre(GenreRequest genreRequest) {
         Genre genre = mapToEntity(genreRequest);
         Genre newGenre = genreRepository.save(genre);
         return mapToDTO(newGenre);
     }
 
     @Override
-    public GenreDto getGenreById(Long id) {
+    public GenreDTO getGenreById(Long id) {
         Genre genre = genreRepository.findById(id).orElseThrow(() -> new RuntimeException(MessageFormat.format(GENRE_NOT_FOUND_ERROR_MESSAGE_TEMPLATE, id)));
         return mapToDTO(genre);
     }
 
     @Override
-    public PaginationResponse<GenreDto> getAllGenres(int pageNumber, int pageSize, String sortBy, String sortDir) {
+    public PaginationResponse<GenreDTO> getAllGenres(int pageNumber, int pageSize, String sortBy, String sortDir) {
         Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, sortBy, sortDir);
         Page<Genre> genres = genreRepository.findAll(pageable);
 
         List<Genre> listOfGenres = genres.getContent();
-        List<GenreDto> content = listOfGenres.stream().map(this::mapToDTO).toList();
+        List<GenreDTO> content = listOfGenres.stream().map(this::mapToDTO).toList();
 
         return PaginationUtils.createPaginationResponse(content, genres);
     }
 
     @Override
-    public GenreDto updateGenre(Long id, GenreRequest genreRequest) {
+    public GenreDTO updateGenre(Long id, GenreRequest genreRequest) {
         Genre genre = genreRepository.findById(id).orElseThrow(() -> new RuntimeException(MessageFormat.format(GENRE_NOT_FOUND_ERROR_MESSAGE_TEMPLATE, id)));
         genre.setName(genreRequest.getName());
         Genre updatedGenre = genreRepository.save(genre);
@@ -63,8 +63,8 @@ public class GenreServiceImpl implements GenreService {
         genreRepository.delete(genre);
     }
 
-    private GenreDto mapToDTO(Genre genre) {
-        return modelMapper.map(genre, GenreDto.class);
+    private GenreDTO mapToDTO(Genre genre) {
+        return modelMapper.map(genre, GenreDTO.class);
     }
 
     private Genre mapToEntity(GenreRequest genreRequest) {

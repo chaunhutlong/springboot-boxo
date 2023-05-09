@@ -34,7 +34,7 @@ public class StorageService {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(imageBytes.length);
         metadata.setContentType("image/" + imageType);
-        s3client.putObject(new PutObjectRequest(bucketName, fileName + imageType, byteArrayInputStream, metadata)
+        s3client.putObject(new PutObjectRequest(bucketName, fileName + "." + imageType, byteArrayInputStream, metadata)
                 .withCannedAcl(CannedAccessControlList.PublicRead)
                 .withMetadata(metadata));
     }

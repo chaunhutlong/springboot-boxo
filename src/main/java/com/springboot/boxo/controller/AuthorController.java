@@ -1,6 +1,6 @@
 package com.springboot.boxo.controller;
 
-import com.springboot.boxo.payload.AuthorDto;
+import com.springboot.boxo.payload.AuthorDTO;
 import com.springboot.boxo.payload.AuthorRequest;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.service.AuthorService;
@@ -24,12 +24,12 @@ public class AuthorController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<AuthorDto> createAuthor(@Valid @RequestBody AuthorRequest authorRequest) {
+    public ResponseEntity<AuthorDTO> createAuthor(@Valid @RequestBody AuthorRequest authorRequest) {
         return ResponseEntity.ok(authorService.createAuthor(authorRequest));
     }
 
     @GetMapping
-    public ResponseEntity<PaginationResponse<AuthorDto>> getAllAuthors(
+    public ResponseEntity<PaginationResponse<AuthorDTO>> getAllAuthors(
             @RequestParam(value = "pageNumber", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNumber,
             @RequestParam(value = "pageSize", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = AppConstants.DEFAULT_SORT_BY, required = false) String sortBy,
@@ -39,14 +39,14 @@ public class AuthorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AuthorDto> getAuthorById(@PathVariable(value = "id") Long id) {
+    public ResponseEntity<AuthorDTO> getAuthorById(@PathVariable(value = "id") Long id) {
         return ResponseEntity.ok(authorService.getAuthorById(id));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
-    public ResponseEntity<AuthorDto> updateAuthor(@PathVariable(value = "id") Long id,
-                                                @Valid @RequestBody AuthorRequest authorRequest) {
+    public ResponseEntity<AuthorDTO> updateAuthor(@PathVariable(value = "id") Long id,
+                                                  @Valid @RequestBody AuthorRequest authorRequest) {
         return ResponseEntity.ok(authorService.updateAuthor(id, authorRequest));
     }
 

@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class BookCreator {
+public class BookRequest {
     @NotEmpty(message = "Title should not be null or empty")
     private String title;
     @NotEmpty(message = "ISBN should not be null or empty")

@@ -1,8 +1,10 @@
 package com.springboot.boxo.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.data.jpa.domain.AbstractAuditable;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.Pattern;
 import java.util.HashSet;
@@ -14,7 +16,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name = "publishers")
-public class Publisher extends AbstractAuditable<User, Long> {
+public class Publisher extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

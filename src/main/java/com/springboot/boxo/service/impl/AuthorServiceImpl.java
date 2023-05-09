@@ -1,7 +1,7 @@
 package com.springboot.boxo.service.impl;
 
 import com.springboot.boxo.entity.Author;
-import com.springboot.boxo.payload.AuthorDto;
+import com.springboot.boxo.payload.AuthorDTO;
 import com.springboot.boxo.payload.AuthorRequest;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.repository.AuthorRepository;
@@ -28,31 +28,31 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public AuthorDto createAuthor(AuthorRequest authorRequest) {
+    public AuthorDTO createAuthor(AuthorRequest authorRequest) {
         Author author = mapToEntity(authorRequest);
         Author newAuthor = authorRepository.save(author);
         return mapToDTO(newAuthor);
     }
 
     @Override
-    public AuthorDto getAuthorById(Long id) {
+    public AuthorDTO getAuthorById(Long id) {
         Author author = authorRepository.findById(id).orElseThrow(() -> new RuntimeException(MessageFormat.format(AUTHOR_NOT_FOUND_ERROR_MESSAGE_TEMPLATE, id)));
         return mapToDTO(author);
     }
 
     @Override
-    public PaginationResponse<AuthorDto> getAllAuthors(int pageNumber, int pageSize, String sortBy, String sortDir) {
+    public PaginationResponse<AuthorDTO> getAllAuthors(int pageNumber, int pageSize, String sortBy, String sortDir) {
         Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, sortBy, sortDir);
         Page<Author> authors = authorRepository.findAll(pageable);
 
         List<Author> listOfAuthors = authors.getContent();
-        List<AuthorDto> content = listOfAuthors.stream().map(this::mapToDTO).toList();
+        List<AuthorDTO> content = listOfAuthors.stream().map(this::mapToDTO).toList();
 
         return PaginationUtils.createPaginationResponse(content, authors);
     }
 
     @Override
-    public AuthorDto updateAuthor(Long id, AuthorRequest authorRequest) {
+    public AuthorDTO updateAuthor(Long id, AuthorRequest authorRequest) {
         Author author = authorRepository.findById(id).orElseThrow(() -> new RuntimeException(MessageFormat.format(AUTHOR_NOT_FOUND_ERROR_MESSAGE_TEMPLATE, id)));
         author.setName(authorRequest.getName());
         Author updatedAuthor = authorRepository.save(author);
@@ -65,8 +65,8 @@ public class AuthorServiceImpl implements AuthorService {
         authorRepository.delete(author);
     }
 
-    private AuthorDto mapToDTO(Author author) {
-        return mapper.map(author, AuthorDto.class);
+    private AuthorDTO mapToDTO(Author author) {
+        return mapper.map(author, AuthorDTO.class);
     }
 
     private Author mapToEntity(AuthorRequest authorRequest) {

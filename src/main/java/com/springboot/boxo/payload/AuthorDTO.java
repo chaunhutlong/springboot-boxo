@@ -3,7 +3,7 @@ package com.springboot.boxo.payload;
 import lombok.Data;
 
 @Data
-public class AuthorDto {
+public class AuthorDTO {
     private Long id;
     private String name;
     private String bio;

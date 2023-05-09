@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.jpa.domain.AbstractAuditable;
 
 import java.util.List;
 import java.util.Set;
@@ -21,7 +20,7 @@ import java.util.Set;
 @Table(name = "books", indexes = {
         @Index(name = "isbn_index", columnList = "isbn", unique = true)
 })
-public class Book extends AbstractAuditable<User, Long> {
+public class Book extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
