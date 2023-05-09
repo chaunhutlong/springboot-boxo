@@ -2,7 +2,7 @@ package com.springboot.boxo.service.impl;
 
 import com.springboot.boxo.entity.Publisher;
 import com.springboot.boxo.payload.PaginationResponse;
-import com.springboot.boxo.payload.PublisherDto;
+import com.springboot.boxo.payload.PublisherDTO;
 import com.springboot.boxo.payload.PublisherRequest;
 import com.springboot.boxo.repository.PublisherRepository;
 import com.springboot.boxo.service.PublisherService;
@@ -27,32 +27,32 @@ public class PublisherServiceImpl implements PublisherService {
     }
 
     @Override
-    public PublisherDto createPublisher(PublisherRequest publisherRequest) {
+    public PublisherDTO createPublisher(PublisherRequest publisherRequest) {
         Publisher publisher = mapToEntity(publisherRequest);
         Publisher newPublisher = publisherRepository.save(publisher);
         return mapToDTO(newPublisher);
     }
 
     @Override
-    public PublisherDto getPublisherById(Long id) {
+    public PublisherDTO getPublisherById(Long id) {
         Publisher publisher = publisherRepository.findById(id).orElseThrow(() -> new RuntimeException(MessageFormat.format(GENRE_NOT_FOUND_ERROR_MESSAGE_TEMPLATE, id)));
         return mapToDTO(publisher);
     }
 
     @Override
-    public PaginationResponse<PublisherDto> getAllPublishers(int pageNumber, int pageSize, String sortBy, String sortDir) {
+    public PaginationResponse<PublisherDTO> getAllPublishers(int pageNumber, int pageSize, String sortBy, String sortDir) {
         Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, sortBy, sortDir);
 
         Page<Publisher> publishers = publisherRepository.findAll(pageable);
 
         List<Publisher> listOfPublishers = publishers.getContent();
-        List<PublisherDto> content = listOfPublishers.stream().map(this::mapToDTO).toList();
+        List<PublisherDTO> content = listOfPublishers.stream().map(this::mapToDTO).toList();
 
         return PaginationUtils.createPaginationResponse(content, publishers);
     }
 
     @Override
-    public PublisherDto updatePublisher(Long id, PublisherRequest publisherRequest) {
+    public PublisherDTO updatePublisher(Long id, PublisherRequest publisherRequest) {
         Publisher publisher = publisherRepository.findById(id).orElseThrow(() -> new RuntimeException(MessageFormat.format(GENRE_NOT_FOUND_ERROR_MESSAGE_TEMPLATE, id)));
         publisher.setName(publisherRequest.getName());
         Publisher updatedPublisher = publisherRepository.save(publisher);
@@ -65,8 +65,8 @@ public class PublisherServiceImpl implements PublisherService {
         publisherRepository.delete(publisher);
     }
 
-    private PublisherDto mapToDTO(Publisher publisher) {
-        return modelMapper.map(publisher, PublisherDto.class);
+    private PublisherDTO mapToDTO(Publisher publisher) {
+        return modelMapper.map(publisher, PublisherDTO.class);
     }
 
     private Publisher mapToEntity(PublisherRequest publisherRequest) {

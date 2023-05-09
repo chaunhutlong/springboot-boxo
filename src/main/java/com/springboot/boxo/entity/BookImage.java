@@ -19,10 +19,10 @@ public class BookImage {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private ImageType imageType;
-    private String keyImage;
+    private ImageType imageType = ImageType.GALLERY;
+    private String imageKey;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 }

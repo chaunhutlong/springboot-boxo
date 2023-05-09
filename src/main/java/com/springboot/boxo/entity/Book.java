@@ -1,12 +1,16 @@
 package com.springboot.boxo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.jpa.domain.AbstractAuditable;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -42,7 +46,7 @@ public class Book extends AbstractAuditable<User, Long> {
     )
     private Set<Author> authors;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "book_genres",
             joinColumns = @JoinColumn(name = "book_id"),
@@ -50,12 +54,14 @@ public class Book extends AbstractAuditable<User, Long> {
     )
     private Set<Genre> genres;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "publisher_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
     private Publisher publisher;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    private Set<BookImage> images;
+    private List<BookImage> images;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private Set<Review> reviews;

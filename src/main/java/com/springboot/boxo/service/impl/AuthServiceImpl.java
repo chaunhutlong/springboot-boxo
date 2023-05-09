@@ -5,8 +5,8 @@ import com.springboot.boxo.enums.RoleName;
 import com.springboot.boxo.entity.User;
 import com.springboot.boxo.exception.CustomException;
 import com.springboot.boxo.payload.AuthResponse;
-import com.springboot.boxo.payload.LoginDto;
-import com.springboot.boxo.payload.RegisterDto;
+import com.springboot.boxo.payload.LoginRequest;
+import com.springboot.boxo.payload.RegisterRequest;
 import com.springboot.boxo.payload.UserDto;
 import com.springboot.boxo.repository.RoleRepository;
 import com.springboot.boxo.repository.UserRepository;
@@ -52,8 +52,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse loginWithIdentityAndPassword(LoginDto loginDto) {
-        String identity = loginDto.getIdentity();
+    public AuthResponse loginWithIdentityAndPassword(LoginRequest loginRequest) {
+        String identity = loginRequest.getIdentity();
 
         UserDto user = userService.findByUsernameOrEmail(identity, identity);
 
@@ -62,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                identity, loginDto.getPassword()));
+                identity, loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -74,23 +74,23 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse register(@NotNull RegisterDto registerDto) {
+    public AuthResponse register(@NotNull RegisterRequest registerRequest) {
 
         // add check for username exists in database
-        if (Boolean.TRUE.equals(userRepository.existsByUsername(registerDto.getUsername()))) {
+        if (Boolean.TRUE.equals(userRepository.existsByUsername(registerRequest.getUsername()))) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Username is already exists!.");
         }
 
         // add check for email exists in database
-        if (Boolean.TRUE.equals(userRepository.existsByEmail(registerDto.getEmail()))) {
+        if (Boolean.TRUE.equals(userRepository.existsByEmail(registerRequest.getEmail()))) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Email is already exists!.");
         }
 
         User user = new User();
-        user.setName(registerDto.getName());
-        user.setUsername(registerDto.getUsername());
-        user.setEmail(registerDto.getEmail());
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        user.setName(registerRequest.getName());
+        user.setUsername(registerRequest.getUsername());
+        user.setEmail(registerRequest.getEmail());
+        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
         Set<Role> roles = new HashSet<>();
         Role userRole = roleRepository.findByName(RoleName.ROLE_USER.name())
@@ -101,6 +101,6 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         // login after register
-        return loginWithIdentityAndPassword(new LoginDto(registerDto.getUsername(), registerDto.getPassword()));
+        return loginWithIdentityAndPassword(new LoginRequest(registerRequest.getUsername(), registerRequest.getPassword()));
     }
 }

@@ -1,14 +1,12 @@
 package com.springboot.boxo.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.jpa.domain.AbstractAuditable;
 
 import javax.validation.constraints.Pattern;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -28,15 +26,12 @@ public class Publisher extends AbstractAuditable<User, Long> {
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "Invalid email")
     private String email;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Publisher publisher = (Publisher) o;
-        return Objects.equals(id, publisher.id) && Objects.equals(name, publisher.name) && Objects.equals(address, publisher.address) && Objects.equals(phone, publisher.phone) && Objects.equals(email, publisher.email);
-    }
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, address, phone, email);
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "publisher")
+    private Set<Book> books = new HashSet<>();
+
+    public void updateRelations() {
+        if (books != null) {
+            books.forEach(book -> book.setPublisher(this));
+        }
     }
 }
