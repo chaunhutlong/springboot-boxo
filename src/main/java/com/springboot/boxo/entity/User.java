@@ -33,8 +33,7 @@ public class User {
     )
     private Set<Role> roles;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "profile_id", referencedColumnName = "id")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Profile profile;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

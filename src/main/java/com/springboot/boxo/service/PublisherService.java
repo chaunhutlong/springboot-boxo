@@ -1,7 +1,7 @@
 package com.springboot.boxo.service;
 
-import com.springboot.boxo.payload.PublisherDTO;
-import com.springboot.boxo.payload.PublisherRequest;
+import com.springboot.boxo.payload.dto.PublisherDTO;
+import com.springboot.boxo.payload.request.PublisherRequest;
 import com.springboot.boxo.payload.PaginationResponse;
 
 public interface PublisherService {

@@ -5,9 +5,9 @@ import com.springboot.boxo.enums.RoleName;
 import com.springboot.boxo.entity.User;
 import com.springboot.boxo.exception.CustomException;
 import com.springboot.boxo.payload.AuthResponse;
-import com.springboot.boxo.payload.LoginRequest;
-import com.springboot.boxo.payload.RegisterRequest;
-import com.springboot.boxo.payload.UserDto;
+import com.springboot.boxo.payload.request.LoginRequest;
+import com.springboot.boxo.payload.request.RegisterRequest;
+import com.springboot.boxo.payload.dto.UserDTO;
 import com.springboot.boxo.repository.RoleRepository;
 import com.springboot.boxo.repository.UserRepository;
 import com.springboot.boxo.security.JwtTokenProvider;
@@ -55,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse loginWithIdentityAndPassword(LoginRequest loginRequest) {
         String identity = loginRequest.getIdentity();
 
-        UserDto user = userService.findByUsernameOrEmail(identity, identity);
+        UserDTO user = userService.findByUsernameOrEmail(identity, identity);
 
         if (user == null) {
             throw new CustomException(HttpStatus.UNAUTHORIZED, "Username or password is incorrect!.");

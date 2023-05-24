@@ -1,8 +1,8 @@
 package com.springboot.boxo.service.impl;
 
 import com.springboot.boxo.entity.Genre;
-import com.springboot.boxo.payload.GenreDTO;
-import com.springboot.boxo.payload.GenreRequest;
+import com.springboot.boxo.payload.dto.GenreDTO;
+import com.springboot.boxo.payload.request.GenreRequest;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.repository.GenreRepository;
 import com.springboot.boxo.service.GenreService;

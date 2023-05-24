@@ -1,8 +1,8 @@
 package com.springboot.boxo.service.impl;
 
 import com.springboot.boxo.entity.Author;
-import com.springboot.boxo.payload.AuthorDTO;
-import com.springboot.boxo.payload.AuthorRequest;
+import com.springboot.boxo.payload.dto.AuthorDTO;
+import com.springboot.boxo.payload.request.AuthorRequest;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.repository.AuthorRepository;
 import com.springboot.boxo.service.AuthorService;

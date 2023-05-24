@@ -1,7 +1,7 @@
 package com.springboot.boxo.service;
 
-import com.springboot.boxo.payload.GenreDTO;
-import com.springboot.boxo.payload.GenreRequest;
+import com.springboot.boxo.payload.dto.GenreDTO;
+import com.springboot.boxo.payload.request.GenreRequest;
 import com.springboot.boxo.payload.PaginationResponse;
 
 public interface GenreService {

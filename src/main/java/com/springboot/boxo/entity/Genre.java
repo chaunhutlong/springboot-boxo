@@ -17,6 +17,7 @@ public class Genre extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String description;
 
     @Override
     public boolean equals(Object o) {

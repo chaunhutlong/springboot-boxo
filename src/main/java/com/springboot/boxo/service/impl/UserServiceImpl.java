@@ -2,7 +2,7 @@ package com.springboot.boxo.service.impl;
 
 import com.springboot.boxo.entity.User;
 import com.springboot.boxo.exception.ResourceNotFoundException;
-import com.springboot.boxo.payload.UserDto;
+import com.springboot.boxo.payload.dto.UserDTO;
 import com.springboot.boxo.repository.UserRepository;
 import com.springboot.boxo.service.UserService;
 import org.modelmapper.ModelMapper;
@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
         this.mapper = mapper;
     }
 
-    public UserDto findByIdentity(String identity) {
+    public UserDTO findByIdentity(String identity) {
         var user = userRepository.findByUsernameOrEmail(identity, identity);
         if (user.isEmpty()) {
             // if identity is not username or email, check if it is id
@@ -38,31 +38,31 @@ public class UserServiceImpl implements UserService {
         return user.map(this::mapToDto).orElseThrow(() -> new ResourceNotFoundException("User", "identity", identity));
     }
 
-    private UserDto mapToDto(User user) {
-        return mapper.map(user, UserDto.class);
+    private UserDTO mapToDto(User user) {
+        return mapper.map(user, UserDTO.class);
     }
 
-    public UserDto findById(Long id) {
+    public UserDTO findById(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
 
         return mapToDto(user);
     }
 
-    public UserDto findByUsername(String username) {
+    public UserDTO findByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
 
         return user.map(this::mapToDto).orElse(null);
 
     }
 
-    public UserDto findByEmail(String email) {
+    public UserDTO findByEmail(String email) {
         Optional<User> user = userRepository.findByEmail(email);
 
         return user.map(this::mapToDto).orElse(null);
 
     }
 
-    public UserDto findByUsernameOrEmail(String email, String username) {
+    public UserDTO findByUsernameOrEmail(String email, String username) {
         Optional<User> user = userRepository.findByUsernameOrEmail(username, email);
 
         return user.map(this::mapToDto).orElse(null);

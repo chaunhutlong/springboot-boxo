@@ -1,7 +1,7 @@
 package com.springboot.boxo.service;
 
-import com.springboot.boxo.payload.BookDTO;
-import com.springboot.boxo.payload.BookRequest;
+import com.springboot.boxo.payload.dto.BookDTO;
+import com.springboot.boxo.payload.request.BookRequest;
 import org.springframework.http.HttpStatus;
 
 public interface BookService {

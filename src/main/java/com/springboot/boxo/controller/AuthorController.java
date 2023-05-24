@@ -1,7 +1,7 @@
 package com.springboot.boxo.controller;
 
-import com.springboot.boxo.payload.AuthorDTO;
-import com.springboot.boxo.payload.AuthorRequest;
+import com.springboot.boxo.payload.dto.AuthorDTO;
+import com.springboot.boxo.payload.request.AuthorRequest;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.service.AuthorService;
 import com.springboot.boxo.utils.AppConstants;

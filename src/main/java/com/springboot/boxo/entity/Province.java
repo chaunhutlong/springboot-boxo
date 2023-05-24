@@ -18,8 +18,4 @@ public class Province {
     private Long id;
     @Column(nullable = false)
     private String name;
-
-    @ManyToOne
-    @JoinColumn(name = "city_id", nullable = false)
-    private City city;
 }

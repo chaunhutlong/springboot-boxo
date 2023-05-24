@@ -18,10 +18,13 @@ public class Profile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    String avatar;
 
-    // relationships one to many discounts and one to many orders
-    @OneToOne(mappedBy = "profile")
+    private String biography;
+    private String avatar;
+    private String avatarKey;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL)

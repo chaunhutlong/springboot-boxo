@@ -1,7 +1,7 @@
 package com.springboot.boxo.controller;
 
-import com.springboot.boxo.payload.BookDTO;
-import com.springboot.boxo.payload.BookRequest;
+import com.springboot.boxo.payload.dto.BookDTO;
+import com.springboot.boxo.payload.request.BookRequest;
 import com.springboot.boxo.service.BookService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

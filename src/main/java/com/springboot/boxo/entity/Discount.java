@@ -45,5 +45,6 @@ public class Discount extends Auditable {
             joinColumns = @JoinColumn(name = "discount_id"),
             inverseJoinColumns = @JoinColumn(name = "book_id")
     )
+
     private Set<Book> books;
 }

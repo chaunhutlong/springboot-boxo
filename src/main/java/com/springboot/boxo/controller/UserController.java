@@ -1,6 +1,6 @@
 package com.springboot.boxo.controller;
 
-import com.springboot.boxo.payload.UserDto;
+import com.springboot.boxo.payload.dto.UserDTO;
 import com.springboot.boxo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +17,7 @@ public class UserController {
         }
 
         @GetMapping("{identity}")
-        public ResponseEntity<UserDto> getUserByIdentity(@PathVariable String identity){
+        public ResponseEntity<UserDTO> getUserByIdentity(@PathVariable String identity){
             return ResponseEntity.ok(userService.findByIdentity(identity));
         }
 

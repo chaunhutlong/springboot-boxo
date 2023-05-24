@@ -23,6 +23,6 @@ public class City {
     @Column(nullable = false)
     private float longitude;
     @ManyToOne
-    @JoinColumn(name = "city_id", nullable = false)
+    @JoinColumn(name = "province_id", nullable = false)
     private Province province;
 }

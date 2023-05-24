@@ -28,6 +28,7 @@ dependencies {
     implementation 'javax.validation:validation-api:2.0.1.Final'
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.447'
     implementation 'jakarta.xml.bind:jakarta.xml.bind-api:3.0.1'
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'

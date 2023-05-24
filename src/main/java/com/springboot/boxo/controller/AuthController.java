@@ -1,8 +1,8 @@
 package com.springboot.boxo.controller;
 
 import com.springboot.boxo.payload.AuthResponse;
-import com.springboot.boxo.payload.LoginRequest;
-import com.springboot.boxo.payload.RegisterRequest;
+import com.springboot.boxo.payload.request.LoginRequest;
+import com.springboot.boxo.payload.request.RegisterRequest;
 import com.springboot.boxo.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

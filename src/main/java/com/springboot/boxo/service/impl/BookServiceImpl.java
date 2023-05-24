@@ -3,8 +3,8 @@ package com.springboot.boxo.service.impl;
 import com.springboot.boxo.entity.*;
 import com.springboot.boxo.exception.CustomException;
 import com.springboot.boxo.exception.ResourceNotFoundException;
-import com.springboot.boxo.payload.BookDTO;
-import com.springboot.boxo.payload.BookRequest;
+import com.springboot.boxo.payload.dto.BookDTO;
+import com.springboot.boxo.payload.request.BookRequest;
 import com.springboot.boxo.repository.AuthorRepository;
 import com.springboot.boxo.repository.BookRepository;
 import com.springboot.boxo.repository.GenreRepository;
@@ -25,14 +25,12 @@ import java.util.stream.StreamSupport;
 
 @Service
 public class BookServiceImpl implements BookService {
-    private static final String S3_BUCKET_NAME = "boxo-java";
     private final BookRepository bookRepository;
     private final PublisherRepository publisherRepository;
     private final GenreRepository genreRepository;
     private final AuthorRepository authorRepository;
     private final ModelMapper modelMapper;
     private final StorageService storageService;
-
     private final ModelMapper createBookModelMapper;
     private final ModelMapper updateBookModelMapper;
 
@@ -136,7 +134,7 @@ public class BookServiceImpl implements BookService {
             List<BookImage> bookImages = new ArrayList<>();
             for (int i = 0; i < images.size(); i++) {
                 String imageKey = book.getIsbn() + "_" + i;
-                storageService.uploadBase64ToS3(S3_BUCKET_NAME, images.get(i), imageKey);
+                storageService.uploadBase64ToS3(images.get(i), imageKey);
                 BookImage bookImage = new BookImage();
                 bookImage.setImageKey(imageKey);
                 bookImage.setBook(book);

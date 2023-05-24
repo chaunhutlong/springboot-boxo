@@ -5,20 +5,29 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import jakarta.xml.bind.DatatypeConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class StorageService {
-    private final AmazonS3 s3client;
+    private final AmazonS3 s3Client;
+
+    @Value("${aws.bucket.name}")
+    private String bucketName;
 
     public StorageService(AmazonS3 s3client) {
-        this.s3client = s3client;
+        this.s3Client = s3client;
     }
 
-
-    public void uploadBase64ToS3(String bucketName, String base64Image, String fileName) {
+    public void uploadBase64ToS3(String base64Image, String fileName) {
         String[] strings = base64Image.split(",");
         String imageType = switch (strings[0]) { // check image's extension
             case "data:image/jpeg;base64" -> "jpeg";
@@ -34,8 +43,38 @@ public class StorageService {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(imageBytes.length);
         metadata.setContentType("image/" + imageType);
-        s3client.putObject(new PutObjectRequest(bucketName, fileName + "." + imageType, byteArrayInputStream, metadata)
+        s3Client.putObject(new PutObjectRequest(bucketName, fileName + "." + imageType, byteArrayInputStream, metadata)
                 .withCannedAcl(CannedAccessControlList.PublicRead)
                 .withMetadata(metadata));
+    }
+
+    public Map<String, String> uploadFileToS3(MultipartFile file, String fileName) {
+        try {
+            fileName = System.currentTimeMillis() + "_" + fileName;
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+            metadata.setContentType(file.getContentType());
+
+            InputStream inputStream = file.getInputStream();
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, inputStream, metadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead);
+
+            s3Client.putObject(putObjectRequest);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("url", s3Client.getUrl(bucketName, fileName).toString());
+            response.put("key", fileName);
+
+            return response;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Collections.emptyMap();
+        }
+    }
+
+
+
+    public void deleteFileFromS3(String fileName) {
+        s3Client.deleteObject(bucketName, fileName);
     }
 }
