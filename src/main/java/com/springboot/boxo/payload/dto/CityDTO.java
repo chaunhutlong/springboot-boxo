@@ -6,7 +6,7 @@ import lombok.Data;
 public class CityDTO {
     private Long id;
     private String name;
-    private float latitude;
-    private float longitude;
+    private double latitude;
+    private double longitude;
     private ProvinceDTO province;
 }

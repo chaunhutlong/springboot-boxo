@@ -20,9 +20,10 @@ public class BookImage {
 
     @Enumerated(EnumType.STRING)
     private ImageType imageType = ImageType.GALLERY;
-    private String imageKey;
+    private String key;
+    private String url;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 }

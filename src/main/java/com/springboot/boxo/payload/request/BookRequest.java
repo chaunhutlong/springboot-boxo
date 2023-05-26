@@ -11,23 +11,25 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookRequest {
-    @NotEmpty(message = "Title should not be null or empty")
-    private String title;
+    @NotEmpty(message = "Name should not be null or empty")
+    private String name;
     @NotEmpty(message = "ISBN should not be null or empty")
     private String isbn;
-    private String publicationDate;
+    private String publishedDate;
     private String language;
     private String description;
-    private int pages;
-    private int quantity;
-    private float price;
-    private float priceDiscount;
-    @NotEmpty(message = "Publisher should not be null or empty")
+    private int totalPages;
+
+    @NotEmpty(message = "Available quantity should not be null or empty")
+    private int availableQuantity;
+
+    @NotEmpty(message = "Price should not be null or empty")
+    private double price;
+
+    private Double priceDiscount;
     private Long publisherId;
-    @NotEmpty(message = "Authors should not be null or empty")
-    private List<Long> authorIds;
-    @NotEmpty(message = "Genres should not be null or empty")
-    private List<Long> genreIds;
+    private List<Long> authors;
+    private List<Long> genres;
     private List<String> images;
 
 }

@@ -24,7 +24,7 @@ public class Shipping extends Auditable {
     private ShippingStatus shippingStatus;
 
     @Column(nullable = false)
-    private float value;
+    private double value;
     private String description;
 
     @OneToOne

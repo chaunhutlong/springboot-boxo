@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -27,7 +28,8 @@ public class StorageService {
         this.s3Client = s3client;
     }
 
-    public void uploadBase64ToS3(String base64Image, String fileName) {
+    public Map<String, String> uploadBase64ToS3(String base64Image, String fileName) {
+        fileName = System.currentTimeMillis() + "-" + fileName;
         String[] strings = base64Image.split(",");
         String imageType = switch (strings[0]) { // check image's extension
             case "data:image/jpeg;base64" -> "jpeg";
@@ -43,9 +45,19 @@ public class StorageService {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(imageBytes.length);
         metadata.setContentType("image/" + imageType);
-        s3Client.putObject(new PutObjectRequest(bucketName, fileName + "." + imageType, byteArrayInputStream, metadata)
+
+        PutObjectRequest request = new PutObjectRequest(bucketName, fileName + "." + imageType, byteArrayInputStream, metadata)
                 .withCannedAcl(CannedAccessControlList.PublicRead)
-                .withMetadata(metadata));
+                .withMetadata(metadata);
+
+       s3Client.putObject(request);
+
+        // Generate and return the URL of the uploaded image
+        Map<String, String> response = new HashMap<>();
+        response.put("url", s3Client.getUrl(bucketName, fileName + "." + imageType).toString());
+        response.put("key", fileName + "." + imageType);
+
+        return response;
     }
 
     public Map<String, String> uploadFileToS3(MultipartFile file, String fileName) {
@@ -76,5 +88,9 @@ public class StorageService {
 
     public void deleteFileFromS3(String fileName) {
         s3Client.deleteObject(bucketName, fileName);
+    }
+
+    public void deleteImagesFromS3(List<String> keys) {
+        keys.forEach(key -> s3Client.deleteObject(bucketName, key));
     }
 }

@@ -7,17 +7,17 @@ import java.util.Set;
 @Data
 public class BookDTO {
     private Long id;
-    private String title;
+    private String name;
     private String isbn;
-    private String publicationDate;
+    private String publishedDate;
     private String language;
     private String description;
-    private int pages;
-    private int quantity;
+    private int totalPages;
+    private int availableQuantity;
     private float price;
-    private float priceDiscount;
+    private Float priceDiscount;
     private PublisherDTO publisher;
     private Set<AuthorDTO> authors;
     private Set<GenreDTO> genres;
-
+    private Set<ImageDTO> images;
 }

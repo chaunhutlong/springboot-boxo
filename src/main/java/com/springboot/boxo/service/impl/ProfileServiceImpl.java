@@ -107,8 +107,7 @@ public class ProfileServiceImpl implements ProfileService {
         ModelMapper localModelMapper = new ModelMapper();
         localModelMapper.typeMap(ProfileRequest.class, Profile.class)
                 .addMappings(mapper -> mapper.skip(Profile::setAvatar))
-                .addMappings(mapper -> mapper.skip(Profile::setAvatarKey))
-                .addMappings(mapper -> mapper.skip(Profile::setUser));
+                .addMappings(mapper -> mapper.skip(Profile::setAvatarKey));
 
         localModelMapper.map(profileRequest, profile);
     }

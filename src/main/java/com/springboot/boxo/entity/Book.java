@@ -25,17 +25,17 @@ public class Book extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String title;
+    private String name;
 
     @Column(nullable = false)
     private String isbn;
-    private String publicationDate;
+    private String publishedDate;
     private String language;
     private String description;
-    private int pages;
-    private int quantity;
-    private float price;
-    private float priceDiscount;
+    private int totalPages;
+    private int availableQuantity;
+    private double price;
+    private Double priceDiscount;
 
     @ManyToMany
     @JoinTable(
@@ -54,7 +54,7 @@ public class Book extends Auditable {
     private Set<Genre> genres;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "publisher_id", nullable = false)
+    @JoinColumn(name = "publisher_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Publisher publisher;
@@ -64,4 +64,7 @@ public class Book extends Auditable {
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private Set<Review> reviews;
+
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private Set<Cart> carts;
 }
