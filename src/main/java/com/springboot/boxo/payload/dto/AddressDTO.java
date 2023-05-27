@@ -11,5 +11,4 @@ public class AddressDTO {
     private String description;
     private CityDTO city;
     private boolean isDefault;
-    private UserDTO user;
 }

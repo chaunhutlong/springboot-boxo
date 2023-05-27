@@ -14,8 +14,8 @@ public class BookDTO {
     private String description;
     private int totalPages;
     private int availableQuantity;
-    private float price;
-    private Float priceDiscount;
+    private double price;
+    private Double priceDiscount;
     private PublisherDTO publisher;
     private Set<AuthorDTO> authors;
     private Set<GenreDTO> genres;

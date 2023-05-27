@@ -64,6 +64,7 @@ public class GenreServiceImpl implements GenreService {
     }
 
     private GenreDTO mapToDTO(Genre genre) {
+        // i also want map field of IDTO to GenreDTO
         return modelMapper.map(genre, GenreDTO.class);
     }
 

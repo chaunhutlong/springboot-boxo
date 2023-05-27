@@ -3,12 +3,10 @@ package com.springboot.boxo.enums;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public enum PaymentType {
-
-    CASH_ON_DELIVERY("cash_on_delivery"),
-    CREDIT_CARD("credit_card"),
-    ONLINE_BANKING("online_banking"),
-    PAYPAL("paypal");
+public enum OrderStatus {
+    PENDING("Pending"),
+    PAID("Paid"),
+    CANCELLED("Cancelled");
 
     private final String displayName;
 

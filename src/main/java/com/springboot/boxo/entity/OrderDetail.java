@@ -17,7 +17,7 @@ public class OrderDetail extends Auditable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private int quantity;
-    private float price;
+    private double price;
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;

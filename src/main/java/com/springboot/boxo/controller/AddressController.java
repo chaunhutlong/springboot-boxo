@@ -1,5 +1,6 @@
 package com.springboot.boxo.controller;
 
+import com.springboot.boxo.entity.Address;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.payload.dto.AddressDTO;
 import com.springboot.boxo.payload.request.AddressRequest;
@@ -42,7 +43,8 @@ public class AddressController {
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         Long userId = userDetails.getUserId();
-        double shippingCost = addressService.calculateShippingCost(userId);
+        Address address = addressService.getDefaultAddress(userId);
+        double shippingCost = addressService.calculateShippingCost(address);
         return ResponseEntity.ok(shippingCost);
     }
 

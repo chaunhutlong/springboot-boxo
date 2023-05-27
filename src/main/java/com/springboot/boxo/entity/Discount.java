@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.Set;
 
 @Getter
@@ -30,14 +31,16 @@ public class Discount extends Auditable {
     private String description;
     @Column(nullable = false, unique = true)
     private String code;
-    private float value;
-    private float maxValue;
-    private float minRequiredValue;
-    private String startDate;
-    private String endDate;
-    private int maxUses;
-    private int uses;
-    private boolean active;
+    @Enumerated(EnumType.STRING)
+    private DiscountType type;
+    private double value;
+    private double maxValue;
+    private double minRequiredValue;
+    private Date startDate;
+    private Date endDate;
+    private int quantity;
+    private boolean isActive;
+    private boolean isPublic;
 
     @ManyToMany
     @JoinTable(

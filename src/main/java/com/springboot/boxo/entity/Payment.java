@@ -24,7 +24,7 @@ public class Payment extends Auditable {
     private PaymentType type = PaymentType.CASH_ON_DELIVERY;
 
     @Column(nullable = false)
-    private float value;
+    private double value;
 
     @OneToOne
     @JoinColumn(name = "order_id", nullable = false)

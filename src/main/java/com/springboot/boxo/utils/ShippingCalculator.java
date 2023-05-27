@@ -21,9 +21,9 @@ public class ShippingCalculator {
         } else {
             shippingCost = 0.0; // if distance is not provided or invalid, set shipping cost to 0
         }
+        // format shipping cost to 2 decimal places
+        shippingCost = Math.round(shippingCost * 100.0) / 100.0;
 
-        // convert shipping cost to VND and format it to 2 decimal places
-        shippingCost *= 1000;
-        return Double.parseDouble(String.format("%.2f", shippingCost));
+        return shippingCost;
     }
 }

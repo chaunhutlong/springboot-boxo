@@ -1,11 +1,14 @@
 package com.springboot.boxo.service.impl;
 
 import com.springboot.boxo.entity.Address;
+import com.springboot.boxo.entity.City;
+import com.springboot.boxo.entity.User;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.payload.dto.AddressDTO;
 import com.springboot.boxo.payload.request.AddressRequest;
 import com.springboot.boxo.payload.request.ProfileRequest;
 import com.springboot.boxo.repository.AddressRepository;
+import com.springboot.boxo.repository.CityRepository;
 import com.springboot.boxo.repository.UserRepository;
 import com.springboot.boxo.service.AddressService;
 import com.springboot.boxo.service.CityService;
@@ -27,12 +30,15 @@ public class AddressServiceImpl implements AddressService {
     private final UserRepository userRepository;
     private final CityService cityService;
     private final ModelMapper modelMapper;
+    private final CityRepository cityRepository;
 
-    public AddressServiceImpl(AddressRepository addressRepository, UserRepository userRepository, CityService cityService, ModelMapper modelMapper) {
+    public AddressServiceImpl(AddressRepository addressRepository, UserRepository userRepository, CityService cityService, ModelMapper modelMapper,
+                              CityRepository cityRepository) {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
         this.cityService = cityService;
         this.modelMapper = modelMapper;
+        this.cityRepository = cityRepository;
     }
 
     @Override
@@ -41,7 +47,7 @@ public class AddressServiceImpl implements AddressService {
 
         if (address.isDefault()) {
             // update other addresses to not default
-            addressRepository.updateDefaultAddressByUserId(userId);
+            addressRepository.updateDefaultAddressByUserId(userId, address.getId());
         }
 
         double distance = cityService.calculateDistance(addressRequest.getCityId());
@@ -70,18 +76,28 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressDTO updateAddress(Long id, AddressRequest addressRequest) {
-        Address address = addressRepository.findById(id).orElseThrow(() -> new RuntimeException(MessageFormat.format(ADDRESS_NOT_FOUND_ERROR_MESSAGE_TEMPLATE, id)));
-        var userId = address.getUser().getId();
-        var addressId = address.getId();
-        if (address.isDefault()) {
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(MessageFormat.format(ADDRESS_NOT_FOUND_ERROR_MESSAGE_TEMPLATE, id)));
+
+        User user = address.getUser();
+        Long userId = user.getId();
+        City city = address.getCity();
+        Long cityId = addressRequest.getCityId() != null ? addressRequest.getCityId() : city.getId();
+        double distance = cityService.calculateDistance(cityId);
+
+        if (addressRequest.isDefault()) {
             // update other addresses to not default
-            addressRepository.updateDefaultAddressByUserId(userId);
+            addressRepository.updateDefaultAddressByUserId(userId, id);
         }
 
-        address = mapToEntity(addressRequest);
-        address.setId(addressId);
+        address.setId(id);
+        address.setName(addressRequest.getName() != null ? addressRequest.getName() : address.getName());
+        address.setPhone(addressRequest.getPhone() != null ? addressRequest.getPhone() : address.getPhone());
         address.setUser(userRepository.findById(userId).orElseThrow());
-        address.setDistance(cityService.calculateDistance(addressRequest.getCityId()));
+        address.setDistance(distance);
+        address.setDescription(addressRequest.getDescription() != null ? addressRequest.getDescription() : address.getDescription());
+        address.setCity(cityRepository.findById(cityId).orElseThrow());
+        address.setDefault(addressRequest.isDefault());
 
         return mapToDTO(addressRepository.save(address));
     }
@@ -92,9 +108,13 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    public double calculateShippingCost(Long userId) {
-        Address address = addressRepository.getDefaultAddressByUserId(userId);
+    public double calculateShippingCost(Address address) {
         return calculateShippingValue(address.getDistance());
+    }
+
+    @Override
+    public Address getDefaultAddress(Long userId) {
+        return addressRepository.getDefaultAddressByUserId(userId);
     }
 
     private AddressDTO mapToDTO(Address address) {

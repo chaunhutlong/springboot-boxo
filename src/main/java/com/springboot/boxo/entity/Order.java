@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,7 +23,7 @@ public class Order extends Auditable {
     private String status;
 
     @Column(nullable = false)
-    private float total;
+    private double totalPayment;
 
     private String description;
 
@@ -30,10 +32,17 @@ public class Order extends Auditable {
     private User user;
 
     @OneToOne
-    @JoinColumn(name = "shipping_id", nullable = false)
+    @JoinColumn(name = "shipping_id")
     private Shipping shipping;
 
     @OneToOne
-    @JoinColumn(name = "payment_id", nullable = false)
+    @JoinColumn(name = "payment_id")
     private Payment payment;
+
+    @OneToOne
+    @JoinColumn(name = "discount_id")
+    private Discount discount;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private Set<OrderDetail> orderDetails;
 }

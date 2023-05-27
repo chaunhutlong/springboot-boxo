@@ -21,7 +21,7 @@ public class Shipping extends Auditable {
     private String trackingNumber;
 
     @Enumerated(EnumType.STRING)
-    private ShippingStatus shippingStatus;
+    private ShippingStatus status;
 
     @Column(nullable = false)
     private double value;

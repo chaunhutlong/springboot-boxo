@@ -15,6 +15,9 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
     List<Cart> findByUserId(Long userId);
     Optional<Cart> findByUserIdAndBookId(Long userId, Long bookId);
 
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId AND c.isChecked = :checked")
+    List<Cart> findByUserIdAndChecked(Long userId, boolean checked);
+
     @Modifying
     @Transactional
     @Query("UPDATE Cart c SET c.totalPrice = :totalPrice WHERE c.user.id = :userId AND c.book.id = :bookId")

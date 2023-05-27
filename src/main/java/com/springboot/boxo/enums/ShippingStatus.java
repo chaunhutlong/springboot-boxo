@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public enum ShippingStatus {
     PENDING,
-    SHIPPED,
     DELIVERED,
     CANCELLED
 }
