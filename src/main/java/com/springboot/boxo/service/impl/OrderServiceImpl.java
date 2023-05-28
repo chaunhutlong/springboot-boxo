@@ -5,14 +5,19 @@ import com.springboot.boxo.enums.OrderStatus;
 import com.springboot.boxo.enums.PaymentType;
 import com.springboot.boxo.enums.ShippingStatus;
 import com.springboot.boxo.exception.CustomException;
+import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.payload.dto.OrderDTO;
+import com.springboot.boxo.payload.dto.ShippingDTO;
 import com.springboot.boxo.payload.dto.ShortBookDTO;
 import com.springboot.boxo.repository.*;
 import com.springboot.boxo.service.AddressService;
 import com.springboot.boxo.service.CartService;
 import com.springboot.boxo.service.DiscountService;
 import com.springboot.boxo.service.OrderService;
+import com.springboot.boxo.utils.PaginationUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -77,6 +82,121 @@ public class OrderServiceImpl implements OrderService {
         return mapToOrderDTO(order);
     }
 
+    @Override
+    public HttpStatus checkoutOrder(Long userId, Long orderId) {
+        Order order = getOrderById(orderId);
+
+        if (order.getStatus().equals(String.valueOf(OrderStatus.PAID))) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Order is already paid");
+        }
+
+        validateUserAuthorization(order, userId);
+        validatePaymentNotProcessed(orderId);
+
+        processPayment(order);
+        updateOrderAndShippingStatus(order);
+
+        return HttpStatus.OK;
+    }
+
+    @Override
+    public HttpStatus cancelOrder(Long userId, Long orderId) {
+        Order order = getOrderById(orderId);
+
+        if (order.getStatus().equals(String.valueOf(OrderStatus.CANCELLED))) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Order is already cancelled");
+        }
+
+        validateUserAuthorization(order, userId);
+
+        order.setStatus(String.valueOf(OrderStatus.CANCELLED));
+        orderRepository.save(order);
+
+        return HttpStatus.OK;
+    }
+
+    @Override
+    public OrderDTO getOrder(Long orderId) {
+        Order order = getOrderById(orderId);
+        return mapToOrderDTO(order);
+    }
+
+    @Override
+    public PaginationResponse<OrderDTO> getOrdersByUserId(Long userId, int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, sortBy, sortDir);
+        Page<Order> orders = orderRepository.findByUserId(userId, pageable);
+
+        List<OrderDTO> orderDTOs = new ArrayList<>();
+        orders.forEach(order -> orderDTOs.add(mapToOrderDTO(order)));
+
+        return PaginationUtils.createPaginationResponse(orderDTOs, orders);
+    }
+
+    @Override
+    public PaginationResponse<OrderDTO> getAllOrders(int pageNumber, int pageSize, String sortBy, String sortDir) {
+        Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, sortBy, sortDir);
+        Page<Order> orders = orderRepository.findAll(pageable);
+
+        List<OrderDTO> orderDTOs = new ArrayList<>();
+        orders.forEach(order -> orderDTOs.add(mapToOrderDTO(order)));
+
+        return PaginationUtils.createPaginationResponse(orderDTOs, orders);
+    }
+
+    @Override
+    public ShippingDTO getShippingByOrderId(Long orderId) {
+        Order order = getOrderById(orderId);
+        return mapToShippingDTO(order.getShipping());
+    }
+    @Override
+    public HttpStatus updateShippingStatus(Long orderId, ShippingStatus status) {
+        Order order = getOrderById(orderId);
+        Shipping shipping = order.getShipping();
+        shipping.setStatus(status);
+        shippingRepository.save(shipping);
+        return HttpStatus.OK;
+    }
+
+    private Order getOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Order not found"));
+    }
+
+    private void validateUserAuthorization(Order order, Long userId) {
+        if (!order.getUser().getId().equals(userId)) {
+            throw new CustomException(HttpStatus.FORBIDDEN, "You are not authorized to access this order");
+        }
+    }
+
+    private void validatePaymentNotProcessed(Long orderId) {
+        Payment payment = paymentRepository.findByOrderIdAndPaid(orderId, true);
+        if (payment != null) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Payment is already processed");
+        }
+    }
+
+    private void processPayment(Order order) {
+        Payment payment = createPayment(order);
+        payment.setPaid(true);
+        paymentRepository.save(payment);
+        order.setPayment(payment);
+    }
+
+    private Payment createPayment(Order order) {
+        Payment payment = new Payment();
+        payment.setOrder(order);
+        payment.setAddress(order.getShipping().getAddress());
+        payment.setPaid(false);
+        payment.setValue(order.getTotalPayment());
+        return paymentRepository.save(payment);
+    }
+
+    private void updateOrderAndShippingStatus(Order order) {
+        order.setStatus(String.valueOf(OrderStatus.PAID));
+        order.getShipping().setStatus(ShippingStatus.SHIPPING);
+        orderRepository.save(order);
+    }
+
     private Map<String, Object> calculateTotalPayment(List<Cart> carts, String discountCode) {
         double totalPayment = carts.stream().mapToDouble(Cart::getTotalPrice).sum();
         Discount discount = null;
@@ -124,7 +244,7 @@ public class OrderServiceImpl implements OrderService {
         Payment payment = new Payment();
         payment.setType(PaymentType.valueOf(paymentType));
         payment.setOrder(order);
-        payment.setPaid(paymentType.equals(PaymentType.CASH_ON_DELIVERY.toString()));
+        payment.setPaid(false);
         payment.setValue(totalPayment);
         payment.setAddress(address);
         paymentRepository.save(payment);
@@ -138,7 +258,6 @@ public class OrderServiceImpl implements OrderService {
 
         return orderRepository.save(order);
     }
-
 
     private Set<OrderDetail> createOrderDetails(Order order, List<Cart> carts) {
         Set<OrderDetail> orderDetails = new HashSet<>();
@@ -176,14 +295,14 @@ public class OrderServiceImpl implements OrderService {
             shortBookDTO.setBookId(orderDetail.getBook().getId());
             shortBookDTO.setQuantity(orderDetail.getQuantity());
             shortBookDTO.setImageUrl(orderDetail.getBook().getImages().get(0).getUrl());
-            shortBookDTO.setCreateBy(orderDetail.getBook().getCreatedBy());
-            shortBookDTO.setCreateDate(String.valueOf(orderDetail.getBook().getCreatedDate()));
-            shortBookDTO.setUpdateBy(orderDetail.getBook().getLastModifiedBy());
-            shortBookDTO.setUpdateDate(String.valueOf(orderDetail.getBook().getLastModifiedDate()));
             items.add(shortBookDTO);
         }
         orderDTO.setBooks(items);
         return orderDTO;
+    }
+
+    private ShippingDTO mapToShippingDTO(Shipping shipping) {
+        return modelMapper.map(shipping, ShippingDTO.class);
     }
 }
 

@@ -5,46 +5,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="367932a1-5c98-42e3-9f20-89839691acb6" name="Changes" comment="implement more model and change MySQL to Postgresql">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/controller/OrderController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/enums/OrderStatus.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/mapper/OrderMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/IDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/OrderDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/PaymentDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/ShippingDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/ShortBookDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/request/ProcessPaymentOrderRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/DiscountRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/OrderRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/PaymentRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/ShippingRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/DiscountService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/OrderService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/DiscountServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/OrderServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/utils/TrackingNumberGenerator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/d/8/d8ca811d9a215c0573153c73a3eb26207cd0c946" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/request/CheckoutOrderRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/d/8/d8ca811d9a215c0573153c73a3eb26207cd0c946" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/config/ModelMapperConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/config/ModelMapperConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/controller/AddressController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/controller/AddressController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/controller/OrderController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Address.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Address.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Discount.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Discount.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Book.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Book.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Order.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/OrderDetail.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/OrderDetail.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Payment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Payment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Shipping.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Shipping.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/enums/PaymentType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/enums/PaymentType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/enums/ShippingStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/enums/ShippingStatus.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/AddressDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/AddressDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/BookDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/BookDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/AddressRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/AddressRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/CartRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/CartRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/AddressService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/AddressService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/AddressServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/AddressServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/GenreServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/GenreServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/mapper/OrderMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/ShippingDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/ShippingDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/OrderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/OrderRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/PaymentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/PaymentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/OrderService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/OrderServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/OrderServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/utils/ShippingCalculator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/utils/ShippingCalculator.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -269,7 +244,8 @@
       <workItem from="1685078420633" duration="20589000" />
       <workItem from="1685110538638" duration="10465000" />
       <workItem from="1685204873996" duration="2453000" />
-      <workItem from="1685207803799" duration="3676000" />
+      <workItem from="1685207803799" duration="3813000" />
+      <workItem from="1685251244399" duration="8435000" />
     </task>
     <task id="LOCAL-00001" summary="setup src">
       <created>1680528192322</created>
@@ -369,14 +345,19 @@
           <option name="timeStamp" value="39" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/AddressServiceImpl.java</url>
-          <line>101</line>
-          <option name="timeStamp" value="61" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/utils/ShippingCalculator.java</url>
           <line>9</line>
           <option name="timeStamp" value="68" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java</url>
+          <line>108</line>
+          <option name="timeStamp" value="90" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java</url>
+          <line>111</line>
+          <option name="timeStamp" value="91" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

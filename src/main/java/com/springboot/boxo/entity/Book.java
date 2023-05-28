@@ -37,7 +37,7 @@ public class Book extends Auditable {
     private double price;
     private Double priceDiscount;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(
             name = "book_authors",
             joinColumns = @JoinColumn(name = "book_id"),

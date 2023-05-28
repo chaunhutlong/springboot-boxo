@@ -13,6 +13,5 @@ public class ShippingDTO extends IDTO
     private double value;
     private String trackingNumber;
     private Long orderId;
-
     private ShippingStatus status;
 }
