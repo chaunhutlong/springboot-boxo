@@ -7,6 +7,7 @@ import com.springboot.boxo.enums.ShippingStatus;
 import com.springboot.boxo.exception.CustomException;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.payload.dto.OrderDTO;
+import com.springboot.boxo.payload.dto.PaymentDTO;
 import com.springboot.boxo.payload.dto.ShippingDTO;
 import com.springboot.boxo.payload.dto.ShortBookDTO;
 import com.springboot.boxo.repository.*;
@@ -145,13 +146,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public ShippingDTO getShippingByOrderId(Long orderId) {
-        Order order = getOrderById(orderId);
-        return mapToShippingDTO(order.getShipping());
+        Shipping shipping = shippingRepository.findByOrderId(orderId);
+        return mapToShippingDTO(shipping);
     }
     @Override
     public HttpStatus updateShippingStatus(Long orderId, ShippingStatus status) {
-        Order order = getOrderById(orderId);
-        Shipping shipping = order.getShipping();
+        Shipping shipping = shippingRepository.findByOrderId(orderId);
         shipping.setStatus(status);
         shippingRepository.save(shipping);
         return HttpStatus.OK;
@@ -176,24 +176,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void processPayment(Order order) {
-        Payment payment = createPayment(order);
+        Shipping shipping = shippingRepository.findByOrderId(order.getId());
+        Payment payment = createPayment(order, shipping.getAddress());
         payment.setPaid(true);
         paymentRepository.save(payment);
-        order.setPayment(payment);
     }
 
-    private Payment createPayment(Order order) {
+    private Payment createPayment(Order order, Address address) {
         Payment payment = new Payment();
         payment.setOrder(order);
-        payment.setAddress(order.getShipping().getAddress());
+        payment.setAddress(address);
         payment.setPaid(false);
         payment.setValue(order.getTotalPayment());
         return paymentRepository.save(payment);
     }
 
     private void updateOrderAndShippingStatus(Order order) {
+        Shipping shipping = shippingRepository.findByOrderId(order.getId());
         order.setStatus(String.valueOf(OrderStatus.PAID));
-        order.getShipping().setStatus(ShippingStatus.SHIPPING);
+        shipping.setStatus(ShippingStatus.SHIPPING);
         orderRepository.save(order);
     }
 
@@ -249,9 +250,7 @@ public class OrderServiceImpl implements OrderService {
         payment.setAddress(address);
         paymentRepository.save(payment);
 
-        order.setShipping(shipping); // Set the shipping reference
-        order.setPayment(payment); // Set the payment reference
-        order.setDiscount(discount); // Set the discount reference if applicable
+        order.setDiscount(discount);
 
         Set<OrderDetail> orderDetails = createOrderDetails(order, carts);
         order.setOrderDetails(orderDetails);
@@ -294,15 +293,26 @@ public class OrderServiceImpl implements OrderService {
             ShortBookDTO shortBookDTO = modelMapper.map(orderDetail.getBook(), ShortBookDTO.class);
             shortBookDTO.setBookId(orderDetail.getBook().getId());
             shortBookDTO.setQuantity(orderDetail.getQuantity());
-            shortBookDTO.setImageUrl(orderDetail.getBook().getImages().get(0).getUrl());
+            if (orderDetail.getBook().getImages() != null && !orderDetail.getBook().getImages().isEmpty()) {
+                shortBookDTO.setImageUrl(orderDetail.getBook().getImages().get(0).getUrl());
+            }
+            else {
+                shortBookDTO.setImageUrl("");
+            }
             items.add(shortBookDTO);
         }
         orderDTO.setBooks(items);
+        orderDTO.setShipping(mapToShippingDTO(shippingRepository.findByOrderId(order.getId())));
+        orderDTO.setPayment(mapToPaymentDTO(paymentRepository.findByOrderId(order.getId())));
         return orderDTO;
     }
 
     private ShippingDTO mapToShippingDTO(Shipping shipping) {
         return modelMapper.map(shipping, ShippingDTO.class);
+    }
+
+    private PaymentDTO mapToPaymentDTO(Payment payment) {
+        return modelMapper.map(payment, PaymentDTO.class);
     }
 }
 

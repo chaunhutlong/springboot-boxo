@@ -24,20 +24,21 @@ public class Book extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     private String name;
 
     @Column(nullable = false)
     private String isbn;
     private String publishedDate;
     private String language;
+    @Column(columnDefinition = "TEXT")
     private String description;
     private int totalPages;
     private int availableQuantity;
     private double price;
     private Double priceDiscount;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "book_authors",
             joinColumns = @JoinColumn(name = "book_id"),
@@ -45,7 +46,7 @@ public class Book extends Auditable {
     )
     private Set<Author> authors;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "book_genres",
             joinColumns = @JoinColumn(name = "book_id"),

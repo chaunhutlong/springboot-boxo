@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.Pattern;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -27,13 +25,4 @@ public class Publisher extends Auditable {
     private String phone;
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", message = "Invalid email")
     private String email;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "publisher")
-    private Set<Book> books = new HashSet<>();
-
-    public void updateRelations() {
-        if (books != null) {
-            books.forEach(book -> book.setPublisher(this));
-        }
-    }
 }

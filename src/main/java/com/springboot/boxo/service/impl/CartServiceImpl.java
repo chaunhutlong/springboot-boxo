@@ -189,7 +189,12 @@ public class CartServiceImpl implements CartService {
         itemCartDTO.setName(book.getName());
         itemCartDTO.setPrice(book.getPrice());
         itemCartDTO.setPriceDiscount(book.getPriceDiscount());
-        itemCartDTO.setImageUrl(book.getImages().get(0).getUrl());
+        if (book.getImages() != null && !book.getImages().isEmpty()) {
+            itemCartDTO.setImageUrl(book.getImages().get(0).getUrl());
+        }
+        else {
+            itemCartDTO.setImageUrl("");
+        }
         itemCartDTO.setTotalPrice(getBookTotalPrice(book, cart.getQuantity()));
         return itemCartDTO;
     }

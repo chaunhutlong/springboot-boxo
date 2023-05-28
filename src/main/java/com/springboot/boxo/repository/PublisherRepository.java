@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PublisherRepository extends JpaRepository<Publisher, Long> {
     Page<Publisher> findAll(Pageable pageable);
+    Publisher findByName(String name);
 }

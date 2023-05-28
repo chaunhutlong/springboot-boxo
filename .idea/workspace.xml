@@ -5,22 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="367932a1-5c98-42e3-9f20-89839691acb6" name="Changes" comment="implement more model and change MySQL to Postgresql">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/request/CheckoutOrderRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/request/BookCrawlRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/f/0/f07866736216be0ee2aba49e392191aeae700a35" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/f/0/f07866736216be0ee2aba49e392191aeae700a35" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/securityhotspotstore/index.pb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/controller/OrderController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Address.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Address.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/controller/BookController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/controller/BookController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Auditable.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Auditable.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Book.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Book.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/BookImage.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/BookImage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Order.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Order.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/enums/ShippingStatus.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/enums/ShippingStatus.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/mapper/OrderMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/ShippingDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/payload/dto/ShippingDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/OrderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/OrderRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Publisher.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/entity/Publisher.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/AuthorRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/AuthorRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/BookRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/BookRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/GenreRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/GenreRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/PaymentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/PaymentRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/OrderService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/PublisherRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/PublisherRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/ShippingRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/repository/ShippingRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/BookService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/BookService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/CartServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/CartServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/OrderServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/OrderServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/utils/ShippingCalculator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/utils/ShippingCalculator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/utils/PaginationUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/springboot/boxo/utils/PaginationUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,6 +56,11 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="springboot-boxo" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="springboot-boxo" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
               </path>
             </expand>
             <select />
@@ -104,7 +118,7 @@
     &quot;database.data.extractors.current.id&quot;: &quot;Comma-separated (CSV)_id&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Data/city.csv&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Data/genre.csv&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -113,7 +127,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.ide.settings.uml&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.haulmont.jpb.viewMode&quot;,
     &quot;spring.configuration.checksum&quot;: &quot;eed248499bdbdc0d9dae975d44e11024&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
@@ -245,7 +259,8 @@
       <workItem from="1685110538638" duration="10465000" />
       <workItem from="1685204873996" duration="2453000" />
       <workItem from="1685207803799" duration="3813000" />
-      <workItem from="1685251244399" duration="8435000" />
+      <workItem from="1685251244399" duration="17808000" />
+      <workItem from="1685279838603" duration="15602000" />
     </task>
     <task id="LOCAL-00001" summary="setup src">
       <created>1680528192322</created>
@@ -350,22 +365,55 @@
           <option name="timeStamp" value="68" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java</url>
-          <line>108</line>
-          <option name="timeStamp" value="90" />
+          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/CartServiceImpl.java</url>
+          <line>44</line>
+          <option name="timeStamp" value="99" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/CartServiceImpl.java</url>
+          <line>172</line>
+          <option name="timeStamp" value="100" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java</url>
-          <line>111</line>
-          <option name="timeStamp" value="91" />
+          <line>107</line>
+          <option name="timeStamp" value="125" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java</url>
+          <line>258</line>
+          <option name="timeStamp" value="144" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java</url>
+          <line>260</line>
+          <option name="timeStamp" value="145" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java</url>
+          <line>262</line>
+          <option name="timeStamp" value="146" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java</url>
+          <line>275</line>
+          <option name="timeStamp" value="147" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/springboot/boxo/service/impl/BookServiceImpl.java</url>
+          <line>329</line>
+          <option name="timeStamp" value="150" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
+        <PinnedItemInfo parentTag="com.springboot.boxo.entity.Book" memberName="id" />
         <PinnedItemInfo parentTag="com.springboot.boxo.entity.Book" memberName="genres" />
+        <PinnedItemInfo parentTag="com.springboot.boxo.entity.Book" memberName="price" />
         <PinnedItemInfo parentTag="com.springboot.boxo.payload.dto.CartDTO" memberName="user" />
         <PinnedItemInfo parentTag="com.springboot.boxo.payload.request.BookRequest" memberName="genreIds" />
+        <PinnedItemInfo parentTag="java.util.Optional" memberName="value" />
         <PinnedItemInfo parentTag="com.amazonaws.services.s3.model.PutObjectResult" memberName="metadata" />
         <PinnedItemInfo parentTag="org.springframework.security.authentication.UsernamePasswordAuthenticationToken" memberName="details" />
         <PinnedItemInfo parentTag="com.springboot.boxo.payload.dto.CartDTO" memberName="items" />
@@ -377,6 +425,7 @@
         <watch expression="bookCreator.images" />
         <watch expression="bookCreator.images" />
         <watch expression="book" />
+        <watch expression="book.language" />
       </configuration>
     </watches-manager>
   </component>

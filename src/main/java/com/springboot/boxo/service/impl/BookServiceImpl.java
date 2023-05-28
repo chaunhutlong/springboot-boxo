@@ -5,30 +5,45 @@ import com.springboot.boxo.exception.CustomException;
 import com.springboot.boxo.exception.ResourceNotFoundException;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.payload.dto.BookDTO;
+import com.springboot.boxo.payload.request.BookCrawlRequest;
 import com.springboot.boxo.payload.request.BookRequest;
 import com.springboot.boxo.repository.*;
 import com.springboot.boxo.service.BookService;
 import com.springboot.boxo.service.StorageService;
 import com.springboot.boxo.utils.PaginationUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import static java.util.function.Predicate.not;
 
 @Service
 public class BookServiceImpl implements BookService {
+    @Value("${google.book.api.key}")
+    private String googleBookApiKey;
     private final BookRepository bookRepository;
     private final PublisherRepository publisherRepository;
     private final GenreRepository genreRepository;
@@ -82,25 +97,6 @@ public class BookServiceImpl implements BookService {
                 skip(destination.getAuthors());
             }
         });
-    }
-
-    @Override
-public PaginationResponse<BookDTO> getAllBooks(int pageNumber, int pageSize, String sortBy, String sortDir) {
-        try {
-            Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, sortBy, sortDir);
-            Page<Book> books = bookRepository.findAll(pageable);
-
-            List<Book> listOfBooks = books.getContent();
-            List<BookDTO> content = listOfBooks.stream().map(this::mapToDTO).toList();
-
-            return PaginationUtils.createPaginationResponse(content, books);
-        } catch (Exception e) {
-            HttpStatus  statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-            if (e instanceof CustomException customException) {
-                statusCode = customException.getStatusCode();
-            }
-            throw new CustomException(statusCode, e.getMessage());
-        }
     }
 
     @Override
@@ -171,6 +167,302 @@ public PaginationResponse<BookDTO> getAllBooks(int pageNumber, int pageSize, Str
             deleteBookImages(book);
             bookRepository.delete(book);
             return HttpStatus.OK;
+        } catch (Exception e) {
+            HttpStatus  statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+            if (e instanceof CustomException customException) {
+                statusCode = customException.getStatusCode();
+            }
+            throw new CustomException(statusCode, e.getMessage());
+        }
+    }
+
+    @Override
+    public List<BookDTO> crawlBooks(BookCrawlRequest body) {
+        try {
+            String genre = body.getGenre();
+            String lang = body.getLang();
+            String query = body.getKeyword();
+            if (genre != null) {
+                query += "+subject:" + genre;
+            }
+
+            String baseUrl = "https://www.googleapis.com/books/v1/volumes";
+            int maxResults = 40;
+
+            // Make the initial API request to get the total number of items
+            String initialUrl = String.format("%s?q=%s&key=%s&printType=books&langRestrict=%s", baseUrl, query, googleBookApiKey, lang);
+            JSONObject initialResponse = makeRequest(initialUrl);
+            int totalItems = initialResponse.optInt("totalItems", 0);
+
+            // Calculate the number of requests needed based on totalItems
+            int maxIndex = (int) Math.ceil((double) totalItems / maxResults);
+
+            // Create an array of start indices
+            List<Integer> startIndices = IntStream.range(0, maxIndex)
+                    .map(index -> index * maxResults)
+                    .boxed()
+                    .toList();
+
+            // Execute the API requests concurrently using CompletableFuture and map
+            String finalQuery = query;
+            List<CompletableFuture<List<Book>>> bookFutures = startIndices.stream()
+                    .map(startIndex -> CompletableFuture.supplyAsync(() -> {
+                        String url = String.format("%s?q=%s&startIndex=%d&maxResults=%d&key=%s", baseUrl, finalQuery, startIndex, maxResults, googleBookApiKey);
+                        JSONObject response = makeRequest(url);
+                        JSONArray items = response.optJSONArray("items");
+                        return processBooks(items);
+                    }))
+                    .toList();
+
+            // Wait for all the CompletableFuture to complete and collect the results
+            List<Book> books = bookFutures.stream()
+                    .map(CompletableFuture::join)
+                    .flatMap(Collection::stream)
+                    .toList();
+
+            return books.stream()
+                    .map(this::mapToDTO)
+                    .toList();
+
+        } catch (Exception e) {
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    private JSONObject makeRequest(String url) {
+        // Implement the logic to make the API request and return the response as a JSONObject
+        // You can use libraries like HttpClient or RestTemplate for this purpose
+        // Example implementation using HttpClient:
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpGet httpGet = new HttpGet(url);
+        try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+            HttpEntity entity = response.getEntity();
+            String responseString = EntityUtils.toString(entity);
+            return new JSONObject(responseString);
+        } catch (IOException e) {
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to make API request");
+        }
+    }
+
+    private List<Book> processBooks(JSONArray items) {
+        if (items == null) {
+            return new ArrayList<>();
+        }
+        List<Book> books = new ArrayList<>();
+
+        IntStream.range(0, items.length()).mapToObj(items::getJSONObject).forEach(item -> {
+            JSONObject volumeInfo = item.getJSONObject("volumeInfo");
+            JSONObject volumeSaleInfo = item.optJSONObject("saleInfo");
+            if (volumeInfo == null || volumeSaleInfo == null) {
+                return;
+            }
+            String isbn = extractIsbn(volumeInfo.optJSONArray("industryIdentifiers"));
+            if (isbn == null) {
+                return;
+            }
+            var bookInDatabase = bookRepository.findByIsbn(isbn);
+            if (bookInDatabase.isPresent()) {
+                return;
+            }
+            Book book = createBookFromVolumeInfo(volumeInfo, volumeSaleInfo, isbn);
+            books.add(book);
+        });
+
+        return books;
+    }
+
+    private Book createBookFromVolumeInfo(JSONObject volumeInfo, JSONObject volumeSaleInfo, String isbn) {
+        System.out.println("Creating book from volume info");
+        String title = volumeInfo.optString("title");
+        JSONArray authorsArray = volumeInfo.optJSONArray("authors");
+        Set<String> authors = extractAuthors(authorsArray);
+        String publisher = volumeInfo.optString("publisher");
+        String description = volumeInfo.optString("description");
+        int pageCount = volumeInfo.optInt("pageCount");
+        JSONArray categoriesArray = volumeInfo.optJSONArray("categories");
+        Set<String> categories = extractCategories(categoriesArray);
+        String thumbnail = extractThumbnail(volumeInfo.optJSONObject("imageLinks"));
+        String language = volumeInfo.optString("language");
+        String publishedDate = volumeInfo.optString("publishedDate");
+        double listPrice = extractListPrice(volumeSaleInfo);
+        double retailPrice = extractRetailPrice(volumeSaleInfo);
+        double calculatedPrice;
+        if (listPrice != 0) {
+            calculatedPrice = listPrice;
+        } else if (retailPrice != 0) {
+            calculatedPrice = retailPrice;
+        } else {
+            calculatedPrice = Math.floor(Math.random() * 1000) * 1000;
+        }
+
+        if (retailPrice <= 0) {
+            retailPrice = calculatedPrice;
+        }
+
+        Set<Genre> genresSet = findGenresFromCategories(categories, title);
+
+        Set<Author> authorsSet = findOrCreateAuthors(authors);
+
+        Publisher publisherInDatabase = findOrCreatePublisher(publisher);
+
+        Book book = new Book();
+        book.setName(title);
+        book.setIsbn(isbn);
+        if (!authorsSet.isEmpty()) {
+            book.setAuthors(authorsSet);
+        }
+        book.setPublisher(publisherInDatabase);
+        book.setDescription(description);
+        book.setTotalPages(pageCount);
+        if (!genresSet.isEmpty()) {
+            book.setGenres(genresSet);
+        }
+        book.setAvailableQuantity(1000);
+        book.setLanguage(language);
+        book.setPublishedDate(publishedDate);
+        book.setPrice(calculatedPrice);
+        book.setPriceDiscount(retailPrice);
+        bookRepository.save(book);
+        saveBookImage(thumbnail, book);
+
+        System.out.println("Returning book");
+        return book;
+    }
+
+    private Set<String> extractAuthors(JSONArray authorsArray) {
+        if (authorsArray != null && authorsArray.length() > 0) {
+            return new HashSet<>(Arrays.asList(toStringArray(authorsArray)));
+        }
+
+        return Collections.emptySet();
+    }
+
+    private String extractIsbn(JSONArray industryIdentifiers) {
+        return industryIdentifiers != null ? industryIdentifiers.getJSONObject(0).optString("identifier") : null;
+    }
+
+    private Set<String> extractCategories(JSONArray categoriesArray) {
+        if (categoriesArray != null && categoriesArray.length() > 0) {
+            return new HashSet<>(Arrays.asList(toStringArray(categoriesArray)));
+        }
+
+        return Collections.emptySet();
+    }
+
+    private String extractThumbnail(JSONObject imageLinks) {
+        return imageLinks != null ? imageLinks.optString("thumbnail") : null;
+    }
+
+    private double extractListPrice(JSONObject volumeSaleInfo) {
+        double listPrice = 0.0;
+
+        if (volumeSaleInfo != null) {
+            JSONObject listPriceObj = volumeSaleInfo.optJSONObject("listPrice");
+            if (listPriceObj != null) {
+                listPrice = listPriceObj.optDouble("amount");
+            }
+        }
+
+        return listPrice;
+    }
+
+    private double extractRetailPrice(JSONObject volumeSaleInfo) {
+        double retailPrice = 0.0;
+
+        if (volumeSaleInfo != null) {
+            JSONObject retailPriceObj = volumeSaleInfo.optJSONObject("retailPrice");
+            if (retailPriceObj != null) {
+                retailPrice = retailPriceObj.optDouble("amount");
+            }
+        }
+
+        return retailPrice;
+    }
+
+    private Set<Genre> findGenresFromCategories(Set<String> categories, String title) {
+        HashSet<Genre> genresSet = new HashSet<>();
+        for (String category : categories) {
+            List<Genre> genres = genreRepository.findBySearchTerm(category);
+            if (genres.isEmpty()) {
+                // find the genre with the title as the search term
+                List<Genre> titleGenres = genreRepository.findBySearchTerm(title);
+
+                if (!titleGenres.isEmpty()) {
+                    genresSet.add(titleGenres.get(0));
+                }
+                else {
+                    // find the genre with the "Other" search term
+                    List<Genre> otherGenres = genreRepository.findBySearchTerm("Other");
+                    if (!otherGenres.isEmpty()) {
+                        genresSet.add(otherGenres.get(0));
+                    }
+                }
+            } else {
+                genresSet.add(genres.get(0));
+            }
+        }
+        return genresSet;
+    }
+
+    private Set<Author> findOrCreateAuthors(Set<String> authors) {
+        Set<Author> authorsSet = new HashSet<>();
+        for (String author : authors) {
+            Author authorInDatabase = authorRepository.findByName(author);
+            if (authorInDatabase == null) {
+                Author newAuthor = new Author();
+                newAuthor.setName(author);
+                authorsSet.add(newAuthor);
+                authorRepository.save(newAuthor);
+            } else {
+                authorsSet.add(authorInDatabase);
+            }
+        }
+        return authorsSet;
+    }
+
+    private Publisher findOrCreatePublisher(String publisherName) {
+        Publisher publisherInDatabase = publisherRepository.findByName(publisherName);
+        if (publisherInDatabase == null) {
+            Publisher newPublisher = new Publisher();
+            newPublisher.setName(publisherName);
+            publisherRepository.save(newPublisher);
+            publisherInDatabase = newPublisher;
+        }
+        return publisherInDatabase;
+    }
+
+    private void saveBookImage(String thumbnail, Book book) {
+        if (thumbnail != null) {
+            BookImage bookImage = new BookImage();
+            bookImage.setUrl(thumbnail);
+            bookImage.setBook(book);
+            bookImageRepository.save(bookImage);
+        }
+    }
+
+    private String[] toStringArray(JSONArray jsonArray) {
+        String[] array = new String[jsonArray.length()];
+        for (int i = 0; i < jsonArray.length(); i++) {
+            array[i] = jsonArray.optString(i);
+        }
+        return array;
+    }
+
+    @Override
+    public PaginationResponse<BookDTO> getAllBooks(String searchTerm, int pageNumber, int pageSize, String sortBy, String sortDir) {
+        try {
+
+            if (sortBy == null || sortBy.isEmpty()) {
+                List<Book> books = bookRepository.searchBooks(searchTerm);
+                List<BookDTO> content = books.stream().map(this::mapToDTO).toList();
+                return PaginationUtils.createPaginationResponse(content, books.size(), pageNumber, pageSize);
+            }
+
+            Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, sortBy, sortDir);
+            Page<Book> books = bookRepository.searchBooks(searchTerm, pageable);
+            List<BookDTO> content = books.getContent().stream().map(this::mapToDTO).toList();
+
+            return PaginationUtils.createPaginationResponse(content, books);
         } catch (Exception e) {
             HttpStatus  statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
             if (e instanceof CustomException customException) {
@@ -287,7 +579,6 @@ public PaginationResponse<BookDTO> getAllBooks(int pageNumber, int pageSize, Str
             throw new IllegalArgumentException("authorIds must be an iterable of Long");
         }
     }
-
 
     private void mapGenres(Book book, Object genreIds) {
         if (genreIds instanceof Iterable<?>) {

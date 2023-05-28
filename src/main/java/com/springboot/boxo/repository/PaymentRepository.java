@@ -9,4 +9,7 @@ import org.springframework.stereotype.Repository;
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("SELECT p FROM Payment p WHERE p.order.id = :orderId AND p.isPaid = :paid")
     Payment findByOrderIdAndPaid(Long orderId, boolean paid);
+
+    @Query("SELECT p FROM Payment p WHERE p.order.id = :orderId")
+    Payment findByOrderId(Long orderId);
 }
