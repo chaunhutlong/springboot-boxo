@@ -25,6 +25,7 @@ import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -207,7 +208,8 @@ public class BookServiceImpl implements BookService {
             String finalQuery = query;
             List<CompletableFuture<List<Book>>> bookFutures = startIndices.stream()
                     .map(startIndex -> CompletableFuture.supplyAsync(() -> {
-                        String url = String.format("%s?q=%s&startIndex=%d&maxResults=%d&key=%s", baseUrl, finalQuery, startIndex, maxResults, googleBookApiKey);
+                        String url = String.format("%s?q=%s&key=%s&printType=books&langRestrict=%s&startIndex=%d&maxResults=%d",
+                                baseUrl, finalQuery, googleBookApiKey, lang, startIndex, maxResults);
                         JSONObject response = makeRequest(url);
                         JSONArray items = response.optJSONArray("items");
                         return processBooks(items);
@@ -381,21 +383,17 @@ public class BookServiceImpl implements BookService {
 
     private Set<Genre> findGenresFromCategories(Set<String> categories, String title) {
         HashSet<Genre> genresSet = new HashSet<>();
-        for (String category : categories) {
-            List<Genre> genres = genreRepository.findBySearchTerm(category);
-            if (genres.isEmpty()) {
-                // find the genre with the title as the search term
-                List<Genre> titleGenres = genreRepository.findBySearchTerm(title);
 
-                if (!titleGenres.isEmpty()) {
-                    genresSet.add(titleGenres.get(0));
-                }
-                else {
-                    // find the genre with the "Other" search term
-                    List<Genre> otherGenres = genreRepository.findBySearchTerm("Other");
-                    if (!otherGenres.isEmpty()) {
-                        genresSet.add(otherGenres.get(0));
-                    }
+        for (String category : categories) {
+            List<Genre> genres = genreRepository.findTopBySearchTerm(category, PageRequest.of(0, 1));
+            if (genres.isEmpty()) {
+                List<Genre> genresByTitle = genreRepository.findByBookTitleContainingGenres(title);
+                if (!genresByTitle.isEmpty()) {
+                    genresSet.addAll(genresByTitle);
+                } else {
+                    genreRepository.findTopBySearchTerm("Other", PageRequest.of(0, 1))
+                            .stream()
+                            .findFirst().ifPresent(genresSet::add);
                 }
             } else {
                 genresSet.add(genres.get(0));

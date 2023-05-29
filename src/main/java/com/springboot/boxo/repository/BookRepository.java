@@ -28,5 +28,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             "OR unaccent(b.isbn) ILIKE '%' || unaccent(:searchTerm) || '%' ESCAPE '~'")
     Page<Book> searchBooks(String searchTerm, Pageable pageable);
 
+    @Query("SELECT b FROM Book b WHERE b.isbn = :isbn")
     Optional<Book> findByIsbn(String isbn);
 }
