@@ -67,4 +67,10 @@ public class BookController {
     public ResponseEntity<List<BookDTO>> crawlBooks(@RequestBody BookCrawlRequest crawlBooksRequest) {
         return ResponseEntity.ok(bookService.crawlBooks(crawlBooksRequest));
     }
+
+    @PostMapping("/sync-book-images")
+    public ResponseEntity<HttpStatus> syncBookImages() {
+        HttpStatus statusCode = bookService.syncBookImages();
+        return new ResponseEntity<>(statusCode);
+    }
 }

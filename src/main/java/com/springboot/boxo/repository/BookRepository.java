@@ -30,4 +30,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Query("SELECT b FROM Book b WHERE b.isbn = :isbn")
     Optional<Book> findByIsbn(String isbn);
+
+
+    // Select the Book object with the embeddingId of bookImage table is null
+    @Query("SELECT DISTINCT b FROM Book b JOIN b.images bi WHERE bi.embeddingId IS NULL")
+    List<Book> findBooksWithNullEmbeddingId();
 }

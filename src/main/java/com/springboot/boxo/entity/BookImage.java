@@ -26,4 +26,6 @@ public class BookImage {
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
+
+    private String embeddingId;
 }

@@ -15,4 +15,5 @@ public interface BookService {
     BookDTO getBookById(Long id);
     HttpStatus deleteBookById(Long id);
     List<BookDTO> crawlBooks(BookCrawlRequest crawlBooksRequest);
+    HttpStatus syncBookImages();
 }

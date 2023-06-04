@@ -9,6 +9,7 @@ import com.springboot.boxo.payload.request.BookCrawlRequest;
 import com.springboot.boxo.payload.request.BookRequest;
 import com.springboot.boxo.repository.*;
 import com.springboot.boxo.service.BookService;
+import com.springboot.boxo.service.PythonServerService;
 import com.springboot.boxo.service.StorageService;
 import com.springboot.boxo.utils.PaginationUtils;
 import org.apache.http.HttpEntity;
@@ -25,7 +26,6 @@ import org.modelmapper.PropertyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -39,8 +39,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
-import static java.util.function.Predicate.not;
-
 @Service
 public class BookServiceImpl implements BookService {
     @Value("${google.book.api.key}")
@@ -52,11 +50,12 @@ public class BookServiceImpl implements BookService {
     private final BookImageRepository bookImageRepository;
     private final ModelMapper modelMapper;
     private final StorageService storageService;
+    private final PythonServerService pythonServerService;
     private final ModelMapper createBookModelMapper;
     private final ModelMapper updateBookModelMapper;
 
     @Autowired
-    public BookServiceImpl(BookRepository bookRepository, PublisherRepository publisherRepository, GenreRepository genreRepository, AuthorRepository authorRepository, BookImageRepository bookImageRepository, ModelMapper modelMapper, StorageService storageService) {
+    public BookServiceImpl(BookRepository bookRepository, PublisherRepository publisherRepository, GenreRepository genreRepository, AuthorRepository authorRepository, BookImageRepository bookImageRepository, ModelMapper modelMapper, StorageService storageService, PythonServerService pythonServerService) {
         this.bookRepository = bookRepository;
         this.publisherRepository = publisherRepository;
         this.genreRepository = genreRepository;
@@ -64,6 +63,7 @@ public class BookServiceImpl implements BookService {
         this.bookImageRepository = bookImageRepository;
         this.modelMapper = modelMapper;
         this.storageService = storageService;
+        this.pythonServerService = pythonServerService;
 
         this.createBookModelMapper = new ModelMapper();
         configureCreateBookModelMapper();
@@ -108,6 +108,10 @@ public class BookServiceImpl implements BookService {
 
             bookRepository.save(book);
 
+            // Notify the Python server about the new book and its images
+            // send List<BookImage> to python server
+            notifyPythonServer(book.getImages());
+
             return HttpStatus.CREATED;
         } catch (Exception e) {
             HttpStatus  statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -125,32 +129,36 @@ public class BookServiceImpl implements BookService {
                     .orElseThrow(() -> new ResourceNotFoundException("Book", "id", id));
 
             mapBookRequestToUpdateBook(bookRequest, book);
-            // if images start https then not do anything
+
+            // if images start with "https", do not modify the feature vector
             if (bookRequest.getImages() != null && !bookRequest.getImages().isEmpty()) {
-                List<String> images = new ArrayList<>();
-                Predicate<String> predicate = not(image -> image.startsWith("https"));
-                for (String s : bookRequest.getImages()) {
-                    if (predicate.test(s)) {
-                        images.add(s);
-                    }
-                }
-                if (!images.isEmpty()) {
-                    // images is base64string now
+                List<String> images = bookRequest.getImages();
+                Predicate<String> predicate = image -> !image.startsWith("https");
+                List<String> modifiedImages = images.stream()
+                        .filter(predicate)
+                        .toList();
+
+                if (!modifiedImages.isEmpty()) {
+                    // images are base64 strings now
                     deleteBookImages(book);
-                    uploadBookImages(book, images);
+                    uploadBookImages(book, modifiedImages);
+
+                    // Notify the Python server about the book update
+                    notifyPythonServer(book.getImages());
                 }
             }
 
             bookRepository.save(book);
             return HttpStatus.OK;
         } catch (Exception e) {
-            HttpStatus  statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+            HttpStatus statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
             if (e instanceof CustomException customException) {
                 statusCode = customException.getStatusCode();
             }
             throw new CustomException(statusCode, e.getMessage());
         }
     }
+
 
     @Override
     public BookDTO getBookById(Long id) {
@@ -231,6 +239,27 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+    @Override
+    public HttpStatus syncBookImages() {
+        try {
+            List<Book> books = bookRepository.findBooksWithNullEmbeddingId();
+            books.forEach(book -> {
+                List<BookImage> images = book.getImages();
+                if (images != null && !images.isEmpty()) {
+                    // Notify the Python server about the book images
+                    notifyPythonServer(images);
+                }
+            });
+            return HttpStatus.OK;
+        } catch (Exception e) {
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    private void notifyPythonServer(List<BookImage> bookImages) {
+        pythonServerService.sendBookImages(bookImages);
+    }
+
     private JSONObject makeRequest(String url) {
         // Implement the logic to make the API request and return the response as a JSONObject
         // You can use libraries like HttpClient or RestTemplate for this purpose
@@ -254,18 +283,18 @@ public class BookServiceImpl implements BookService {
 
         IntStream.range(0, items.length()).mapToObj(items::getJSONObject).forEach(item -> {
             JSONObject volumeInfo = item.getJSONObject("volumeInfo");
-            JSONObject volumeSaleInfo = item.optJSONObject("saleInfo");
-            if (volumeInfo == null || volumeSaleInfo == null) {
+            if (volumeInfo == null || volumeInfo.isNull("imageLinks") || volumeInfo.isNull("industryIdentifiers")) {
                 return;
             }
             String isbn = extractIsbn(volumeInfo.optJSONArray("industryIdentifiers"));
-            if (isbn == null) {
+            if (isbn == null || isbn.isBlank()) {
                 return;
             }
             var bookInDatabase = bookRepository.findByIsbn(isbn);
             if (bookInDatabase.isPresent()) {
                 return;
             }
+            JSONObject volumeSaleInfo = item.optJSONObject("saleInfo");
             Book book = createBookFromVolumeInfo(volumeInfo, volumeSaleInfo, isbn);
             books.add(book);
         });
@@ -383,17 +412,19 @@ public class BookServiceImpl implements BookService {
 
     private Set<Genre> findGenresFromCategories(Set<String> categories, String title) {
         HashSet<Genre> genresSet = new HashSet<>();
+        List<String> allGenreNames = genreRepository.findAllGenreNames();
 
         for (String category : categories) {
-            List<Genre> genres = genreRepository.findTopBySearchTerm(category, PageRequest.of(0, 1));
+            List<Genre> genres = genreRepository.findTopBySearchTerm(category);
             if (genres.isEmpty()) {
-                List<Genre> genresByTitle = genreRepository.findByBookTitleContainingGenres(title);
+                List<Genre> genresByTitle = genreRepository.findByBookTitleContainingGenres(title, allGenreNames);
                 if (!genresByTitle.isEmpty()) {
                     genresSet.addAll(genresByTitle);
                 } else {
-                    genreRepository.findTopBySearchTerm("Other", PageRequest.of(0, 1))
-                            .stream()
-                            .findFirst().ifPresent(genresSet::add);
+                    Genre otherGenre = genreRepository.findByName("Other");
+                    if (otherGenre != null) {
+                        genresSet.add(otherGenre);
+                    }
                 }
             } else {
                 genresSet.add(genres.get(0));
@@ -405,14 +436,14 @@ public class BookServiceImpl implements BookService {
     private Set<Author> findOrCreateAuthors(Set<String> authors) {
         Set<Author> authorsSet = new HashSet<>();
         for (String author : authors) {
-            Author authorInDatabase = authorRepository.findByName(author);
-            if (authorInDatabase == null) {
+            List<Author> authorList = authorRepository.findByName(author);
+            if (authorList.isEmpty()) {
                 Author newAuthor = new Author();
                 newAuthor.setName(author);
                 authorsSet.add(newAuthor);
                 authorRepository.save(newAuthor);
             } else {
-                authorsSet.add(authorInDatabase);
+                authorsSet.addAll(authorList);
             }
         }
         return authorsSet;
