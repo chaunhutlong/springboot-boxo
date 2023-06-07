@@ -10,10 +10,10 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaginationResponse<T> {
-    private List<T> content;
-    private int pageNumber;
-    private int pageSize;
-    private long totalElements;
+    private List<T> datas;
+    private int page;
+    private int limit;
+    private long totalResults;
     private int totalPages;
     private boolean last;
 }
