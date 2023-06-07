@@ -12,10 +12,11 @@ import java.util.Optional;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId ORDER BY c.id ASC")
     List<Cart> findByUserId(Long userId);
     Optional<Cart> findByUserIdAndBookId(Long userId, Long bookId);
 
-    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId AND c.isChecked = :checked")
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId AND c.isChecked = :checked ORDER BY c.id ASC")
     List<Cart> findByUserIdAndChecked(Long userId, boolean checked);
 
     @Modifying
