@@ -482,10 +482,7 @@ public class BookServiceImpl implements BookService {
         try {
 
             if (sortBy == null || sortBy.isEmpty()) {
-                Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, "name", sortDir);
-                List<Book> books = bookRepository.searchBooks(searchTerm, pageable).getContent();
-                List<BookDTO> content = books.stream().map(this::mapToDTO).toList();
-                return PaginationUtils.createPaginationResponse(content, books.size(), pageNumber, pageSize);
+                sortBy = "name";
             }
 
             Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, sortBy, sortDir);
