@@ -14,10 +14,10 @@ public final class PaginationUtils {
 
     public static <T> PaginationResponse<T> createPaginationResponse(List<T> content, Page<?> page) {
         PaginationResponse<T> response = new PaginationResponse<>();
-        response.setContent(content);
-        response.setPageNumber(page.getNumber());
-        response.setPageSize(page.getSize());
-        response.setTotalElements(page.getTotalElements());
+        response.setDatas(content);
+        response.setLimit(page.getNumber());
+        response.setPage(page.getSize());
+        response.setTotalResults(page.getTotalElements());
         response.setTotalPages(page.getTotalPages());
         response.setLast(page.isLast());
         return response;
@@ -25,10 +25,10 @@ public final class PaginationUtils {
 
     public static <T> PaginationResponse<T> createPaginationResponse(List<T> content, long totalElements, int pageNumber, int pageSize) {
         PaginationResponse<T> response = new PaginationResponse<>();
-        response.setContent(content);
-        response.setPageNumber(pageNumber);
-        response.setPageSize(pageSize);
-        response.setTotalElements(totalElements);
+        response.setDatas(content);
+        response.setLimit(pageNumber);
+        response.setPage(pageSize);
+        response.setTotalResults(totalElements);
         response.setTotalPages((int) Math.ceil((double) totalElements / pageSize));
         response.setLast(pageNumber == response.getTotalPages() - 1);
         return response;
