@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProcessPaymentOrderRequest {
     @NotNull(message = "Payment type must not be null")
-    @Pattern(regexp = "cash_on_delivery|credit_card|online_banking|paypal", message = "Invalid payment type")
+    @Pattern(regexp = "CASH_ON_DELIVERY|CREDIT_CARD|ONLINE_BANKING|PAYPAL", message = "Invalid payment type")
     private String type;
 
     private String discountCode;
