@@ -39,7 +39,14 @@ public class OrderServiceImpl implements OrderService {
     private final AddressService addressService;
     private final CartService cartService;
     private final ModelMapper modelMapper;
-    public OrderServiceImpl(UserRepository userRepository, BookRepository bookRepository, OrderRepository orderRepository, CartRepository cartRepository, DiscountRepository discountRepository, ShippingRepository shippingRepository, PaymentRepository paymentRepository, DiscountService discountService, AddressService addressService, CartService cartService, ModelMapper modelMapper) {
+
+    public OrderServiceImpl(
+            UserRepository userRepository, BookRepository bookRepository,
+            OrderRepository orderRepository, CartRepository cartRepository,
+            DiscountRepository discountRepository, ShippingRepository shippingRepository,
+            PaymentRepository paymentRepository, DiscountService discountService,
+            AddressService addressService, CartService cartService, ModelMapper modelMapper
+    ) {
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
         this.orderRepository = orderRepository;
@@ -79,6 +86,7 @@ public class OrderServiceImpl implements OrderService {
 
         updateBookQuantity(carts);
         cartService.clearCart(userId);
+
 
         return mapToOrderDTO(order);
     }
@@ -302,8 +310,14 @@ public class OrderServiceImpl implements OrderService {
             items.add(shortBookDTO);
         }
         orderDTO.setBooks(items);
-        orderDTO.setShipping(mapToShippingDTO(shippingRepository.findByOrderId(order.getId())));
-        orderDTO.setPayment(mapToPaymentDTO(paymentRepository.findByOrderId(order.getId())));
+        var shipping = shippingRepository.findByOrderId(order.getId());
+        if (shipping != null) {
+            orderDTO.setShipping(mapToShippingDTO(shipping));
+        }
+        var payment = paymentRepository.findByOrderId(order.getId());
+        if (payment != null) {
+            orderDTO.setPayment(mapToPaymentDTO(payment));
+        }
         return orderDTO;
     }
 
