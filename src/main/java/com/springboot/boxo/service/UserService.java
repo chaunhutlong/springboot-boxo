@@ -9,4 +9,5 @@ public interface UserService {
     UserDTO findByUsername(String username);
     UserDTO findByEmail(String email);
     UserDTO findByUsernameOrEmail(String email, String username);
+    void fakeUsers(int quantity);
 }
