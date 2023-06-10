@@ -1,6 +1,7 @@
 package com.springboot.boxo.service.impl;
 
 import com.springboot.boxo.entity.*;
+import com.springboot.boxo.enums.NotificationType;
 import com.springboot.boxo.enums.OrderStatus;
 import com.springboot.boxo.enums.PaymentType;
 import com.springboot.boxo.enums.ShippingStatus;
@@ -10,11 +11,9 @@ import com.springboot.boxo.payload.dto.OrderDTO;
 import com.springboot.boxo.payload.dto.PaymentDTO;
 import com.springboot.boxo.payload.dto.ShippingDTO;
 import com.springboot.boxo.payload.dto.ShortBookDTO;
+import com.springboot.boxo.payload.request.NotificationRequest;
 import com.springboot.boxo.repository.*;
-import com.springboot.boxo.service.AddressService;
-import com.springboot.boxo.service.CartService;
-import com.springboot.boxo.service.DiscountService;
-import com.springboot.boxo.service.OrderService;
+import com.springboot.boxo.service.*;
 import com.springboot.boxo.utils.PaginationUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -22,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
 
 import static com.springboot.boxo.utils.TrackingNumberGenerator.generateTrackingNumber;
@@ -38,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     private final DiscountService discountService;
     private final AddressService addressService;
     private final CartService cartService;
+    private final NotificationService notificationService;
     private final ModelMapper modelMapper;
 
     public OrderServiceImpl(
@@ -45,7 +46,7 @@ public class OrderServiceImpl implements OrderService {
             OrderRepository orderRepository, CartRepository cartRepository,
             DiscountRepository discountRepository, ShippingRepository shippingRepository,
             PaymentRepository paymentRepository, DiscountService discountService,
-            AddressService addressService, CartService cartService, ModelMapper modelMapper
+            AddressService addressService, CartService cartService, NotificationService notificationService, ModelMapper modelMapper
     ) {
         this.userRepository = userRepository;
         this.bookRepository = bookRepository;
@@ -57,6 +58,7 @@ public class OrderServiceImpl implements OrderService {
         this.discountService = discountService;
         this.addressService = addressService;
         this.cartService = cartService;
+        this.notificationService = notificationService;
         this.modelMapper = modelMapper;
     }
 
@@ -80,15 +82,21 @@ public class OrderServiceImpl implements OrderService {
         double shippingCost = addressService.calculateShippingCost(address);
         double totalPaymentWithShippingCost = totalPayment + shippingCost;
 
-        Order order = createOrderAndShippingAndPayment(
+        SimpleEntry<Order, Shipping> result = createOrderAndShippingAndPayment(
                 userId, totalPaymentWithShippingCost, discount, carts,
                 address, shippingCost, paymentType);
 
         updateBookQuantity(carts);
         cartService.clearCart(userId);
 
+        var bodyNotification = "Your order with tracking number " + result.getValue().getTrackingNumber() + " has been placed";
+        NotificationRequest notificationRequest = new NotificationRequest(
+                userId, result.getKey().getId(), "Order Placed", bodyNotification, NotificationType.ORDER.toString()
+        );
 
-        return mapToOrderDTO(order);
+        notificationService.createNotification(notificationRequest);
+
+        return mapToOrderDTO(result.getKey());
     }
 
     @Override
@@ -120,6 +128,15 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus(String.valueOf(OrderStatus.CANCELLED));
         orderRepository.save(order);
+
+        // create notification
+        var shipping = shippingRepository.findByOrderId(orderId);
+        var bodyNotification = "Your order with tracking number " + shipping.getTrackingNumber() + " has been cancelled";
+
+        NotificationRequest notificationRequest = new NotificationRequest(
+                userId, orderId, "Order Cancelled", bodyNotification, NotificationType.ORDER.toString()
+        );
+        notificationService.createNotification(notificationRequest);
 
         return HttpStatus.OK;
     }
@@ -231,7 +248,7 @@ public class OrderServiceImpl implements OrderService {
         return result;
     }
 
-    private Order createOrderAndShippingAndPayment(
+    private SimpleEntry<Order, Shipping> createOrderAndShippingAndPayment(
             Long userId, double totalPayment, Discount discount, List<Cart> carts,
             Address address, double shippingCost, String paymentType)
     {
@@ -263,7 +280,7 @@ public class OrderServiceImpl implements OrderService {
         Set<OrderDetail> orderDetails = createOrderDetails(order, carts);
         order.setOrderDetails(orderDetails);
 
-        return orderRepository.save(order);
+        return new SimpleEntry<>(order, shipping);
     }
 
     private Set<OrderDetail> createOrderDetails(Order order, List<Cart> carts) {
