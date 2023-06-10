@@ -16,7 +16,7 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<Void> createNotification(@RequestBody NotificationRequest notificationRequest) {
         notificationService.createNotification(notificationRequest);
         return ResponseEntity.ok().build();
@@ -34,7 +34,7 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<PaginationResponse<NotificationDTO>> getNotifications(
             @RequestParam Long userId,
             @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNumber,
