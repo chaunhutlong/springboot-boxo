@@ -9,9 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    @Query("select n from Notification n where n.user.id = :userId and n.isRead = false")
+    @Query("SELECT n FROM Notification n WHERE n.user.id = :userId AND n.isRead = false")
     List<Notification> findAllByUserIdAndReadFalse(Long userId);
 
-    @Query("select n from Notification n where n.user.id = :userId")
+    @Query("SELECT n FROM Notification n WHERE n.user.id = :userId ORDER BY n.createdDate DESC")
     Page<Notification> findAllByUserId(Long userId, Pageable pageable);
 }

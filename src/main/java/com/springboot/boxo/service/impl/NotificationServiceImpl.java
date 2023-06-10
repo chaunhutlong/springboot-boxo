@@ -46,13 +46,12 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public PaginationResponse<NotificationDTO> getNotifications(Long userId, int pageNumber, int pageSize) {
-        Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, "createdAt", "desc");
+        Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, "createdDate", "desc");
         Page<Notification> pageNotification = notificationRepository.findAllByUserId(userId, pageable);
 
-        List<NotificationDTO> notificationDTOs = pageNotification.stream()
+        List<NotificationDTO> notificationDTOs = pageNotification.getContent().stream()
                 .map(this::convertToDto)
                 .toList();
-
         return PaginationUtils.createPaginationResponse(notificationDTOs, pageNotification);
     }
 
