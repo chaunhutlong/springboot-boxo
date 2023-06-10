@@ -30,20 +30,21 @@ public class BookController {
             @RequestParam(value = "limit", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize,
             @RequestParam(value = "sortBy", defaultValue = "", required = false) String sortBy,
             @RequestParam(value = "sortDir", defaultValue = AppConstants.DEFAULT_SORT_DIRECTION, required = false) String sortDir,
-            @RequestParam(value = "search", defaultValue = "", required = false) String searchTerm
+            @RequestParam(value = "search", defaultValue = "", required = false) String searchTerm,
+            @RequestParam(value = "genre", defaultValue = "", required = false) Long genreId
 
     ) {
-        return ResponseEntity.ok(bookService.getAllBooks(searchTerm, pageNumber, pageSize, sortBy, sortDir));
+        return ResponseEntity.ok(bookService.getAllBooks(searchTerm, genreId, pageNumber, pageSize, sortBy, sortDir));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<HttpStatus> createBook(@Valid @ModelAttribute BookRequest bookRequest) {
         HttpStatus statusCode = bookService.createBook(bookRequest);
         return new ResponseEntity<>(statusCode);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping(value = "/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<HttpStatus> updateBook(
             @PathVariable(value = "id") Long id,

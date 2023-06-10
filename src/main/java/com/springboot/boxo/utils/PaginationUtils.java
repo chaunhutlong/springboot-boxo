@@ -15,8 +15,8 @@ public final class PaginationUtils {
     public static <T> PaginationResponse<T> createPaginationResponse(List<T> content, Page<?> page) {
         PaginationResponse<T> response = new PaginationResponse<>();
         response.setDatas(content);
-        response.setLimit(page.getNumber());
-        response.setPage(page.getSize());
+        response.setLimit(page.getSize());
+        response.setPage(page.getNumber());
         response.setTotalResults(page.getTotalElements());
         response.setTotalPages(page.getTotalPages());
         response.setLast(page.isLast());

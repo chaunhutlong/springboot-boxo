@@ -190,7 +190,7 @@ public class BookServiceImpl implements BookService {
         try {
             String genre = body.getGenre();
             String lang = body.getLang();
-            String query = body.getKeyword();
+            String query = body.getKeyword() != null ? body.getKeyword() : "";
             if (genre != null) {
                 query += "+subject:" + genre;
             }
@@ -412,12 +412,11 @@ public class BookServiceImpl implements BookService {
 
     private Set<Genre> findGenresFromCategories(Set<String> categories, String title) {
         HashSet<Genre> genresSet = new HashSet<>();
-        List<String> allGenreNames = genreRepository.findAllGenreNames();
 
         for (String category : categories) {
             List<Genre> genres = genreRepository.findTopBySearchTerm(category);
             if (genres.isEmpty()) {
-                List<Genre> genresByTitle = genreRepository.findByBookTitleContainingGenres(title, allGenreNames);
+                List<Genre> genresByTitle = genreRepository.findByBookName(title);
                 if (!genresByTitle.isEmpty()) {
                     genresSet.addAll(genresByTitle);
                 } else {
@@ -450,14 +449,15 @@ public class BookServiceImpl implements BookService {
     }
 
     private Publisher findOrCreatePublisher(String publisherName) {
-        Publisher publisherInDatabase = publisherRepository.findByName(publisherName);
-        if (publisherInDatabase == null) {
+        List<Publisher> publisherInDatabase = publisherRepository.findByNameContaining(publisherName);
+        if (publisherInDatabase.isEmpty()) {
             Publisher newPublisher = new Publisher();
             newPublisher.setName(publisherName);
             publisherRepository.save(newPublisher);
-            publisherInDatabase = newPublisher;
+            return newPublisher;
+        } else {
+            return publisherInDatabase.get(0);
         }
-        return publisherInDatabase;
     }
 
     private void saveBookImage(String thumbnail, Book book) {
@@ -478,15 +478,14 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public PaginationResponse<BookDTO> getAllBooks(String searchTerm, int pageNumber, int pageSize, String sortBy, String sortDir) {
+    public PaginationResponse<BookDTO> getAllBooks(String searchTerm, Long genreId, int pageNumber, int pageSize, String sortBy, String sortDir) {
         try {
-
             if (sortBy == null || sortBy.isEmpty()) {
                 sortBy = "name";
             }
 
             Pageable pageable = PaginationUtils.convertToPageable(pageNumber, pageSize, sortBy, sortDir);
-            Page<Book> books = bookRepository.searchBooks(searchTerm, pageable);
+            Page<Book> books = bookRepository.searchBooks(searchTerm, genreId, pageable);
             List<BookDTO> content = books.getContent().stream().map(this::mapToDTO).toList();
 
             return PaginationUtils.createPaginationResponse(content, books);

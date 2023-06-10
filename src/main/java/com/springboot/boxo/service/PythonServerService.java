@@ -3,6 +3,10 @@ package com.springboot.boxo.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springboot.boxo.entity.BookImage;
+import com.springboot.boxo.payload.dto.PythonBookDTO;
+import com.springboot.boxo.payload.dto.PythonReviewDTO;
+import com.springboot.boxo.payload.dto.RecommendationDTO;
+import com.springboot.boxo.payload.request.PythonEmbeddingBooksRequest;
 import com.springboot.boxo.repository.BookImageRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +16,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -47,7 +52,8 @@ public class PythonServerService {
 
         // Deserialize the JSON response manually
         try {
-            List<String> embeddingIds = objectMapper.readValue(responseBody, new TypeReference<>() {});
+            List<String> embeddingIds = objectMapper.readValue(responseBody, new TypeReference<>() {
+            });
 
             // Update the corresponding BookImage objects with the feature_vector_ids
             for (int i = 0; i < bookImages.size(); i++) {
@@ -62,10 +68,65 @@ public class PythonServerService {
         }
     }
 
+    public void embeddingBooks(List<PythonBookDTO> books, List<PythonReviewDTO> reviews) {
+        String url = "http://localhost:5000/book-features";
+        PythonEmbeddingBooksRequest request = new PythonEmbeddingBooksRequest();
+        request.setBooks(books);
+        request.setReviews(reviews);
+        // Set the request headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // Build the request entity with the headers and body
+        HttpEntity<PythonEmbeddingBooksRequest> requestEntity = new HttpEntity<>(request, headers);
+
+        // Send the POST request to the Python server
+        restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+    }
+
+    public List<RecommendationDTO> getRecommendationsByBookId(Long bookId, int page, int limit) {
+        // Prepare the request URL
+        // default limit = 10, default page = 1
+        String url = "http://localhost:5000/recommendations/books/" + bookId + "?page=" + page + "&limit=" + limit;
+
+        // Send the GET request to the Python server
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+        String responseBody = responseEntity.getBody();
+
+        // Deserialize the JSON response using ObjectMapper
+        try {
+            return objectMapper.readValue(responseBody, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            // Handle the exception appropriately
+        }
+        return Collections.emptyList();
+    }
+
+    public List<RecommendationDTO> getRecommendationsHomePage() {
+        // Prepare the request URL
+        // default limit = 10, default page = 1
+        String url = "http://localhost:5000/recommendations";
+
+        // Send the GET request to the Python server
+        ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+        String responseBody = responseEntity.getBody();
+
+        // Deserialize the JSON response using ObjectMapper
+        try {
+            return objectMapper.readValue(responseBody, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            // Handle the exception appropriately
+        }
+        return Collections.emptyList();
+    }
+
     private BookImageData convertToBookImageData(BookImage bookImage) {
         // Convert BookImage to BookImageData
         BookImageData bookImageData = new BookImageData();
         bookImageData.setId(bookImage.getId());
+        bookImageData.setBookId(bookImage.getBook().getId());
         bookImageData.setEmbeddingId(bookImage.getEmbeddingId());
         bookImageData.setUrl(bookImage.getUrl());
         return bookImageData;
@@ -76,6 +137,7 @@ public class PythonServerService {
     @NoArgsConstructor
     public static class BookImageData {
         private Long id;
+        private Long bookId;
         private String embeddingId;
         private String url;
     }

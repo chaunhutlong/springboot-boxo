@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 
 public interface BookService {
-    PaginationResponse<BookDTO> getAllBooks(String searchTerm, int pageNumber, int pageSize, String sortBy, String sortDir);
+    PaginationResponse<BookDTO> getAllBooks(String searchTerm, Long genreId, int pageNumber, int pageSize, String sortBy, String sortDir);
     HttpStatus createBook(BookRequest bookRequest);
     HttpStatus updateBook(Long id, BookRequest bookRequest);
     BookDTO getBookById(Long id);
