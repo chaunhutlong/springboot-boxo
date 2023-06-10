@@ -1,5 +1,6 @@
 package com.springboot.boxo.service.impl;
 
+import com.springboot.boxo.entity.Profile;
 import com.springboot.boxo.entity.Role;
 import com.springboot.boxo.enums.RoleName;
 import com.springboot.boxo.entity.User;
@@ -98,6 +99,9 @@ public class AuthServiceImpl implements AuthService {
         roles.add(userRole);
         user.setRoles(roles);
 
+        // create profile
+        Profile profile = new Profile();
+        user.setProfile(profile);
         userRepository.save(user);
 
         // login after register

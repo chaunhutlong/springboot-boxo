@@ -20,6 +20,7 @@ public class Profile {
     private String biography;
     private String avatar;
     private String avatarKey;
+    private String phone;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")

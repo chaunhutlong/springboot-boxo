@@ -46,15 +46,16 @@ public class ProfileServiceImpl implements ProfileService {
         MultipartFile avatarFile = profileRequest.getAvatar();
         var profile = profileRepository.findByUserId(userId);
 
-        mapToEntity(profileRequest, profile);
-
         if (profile != null) {
             deleteOldAvatar(profile);
-
             uploadAvatar(profile, avatarFile);
+            profile.setBiography(profileRequest.getBiography());
+            profile.setPhone(profileRequest.getPhone());
         } else {
             profile = new Profile();
             profile.setUser(userRepository.findById(userId).orElseThrow());
+            profile.setBiography(profileRequest.getBiography());
+            profile.setPhone(profileRequest.getPhone());
 
             uploadAvatar(profile, avatarFile);
         }
@@ -101,14 +102,5 @@ public class ProfileServiceImpl implements ProfileService {
 
     private ProfileDTO mapToDTO(Profile profile) {
         return modelMapper.map(profile, ProfileDTO.class);
-    }
-
-    private void mapToEntity(ProfileRequest profileRequest, Profile profile) {
-        ModelMapper localModelMapper = new ModelMapper();
-        localModelMapper.typeMap(ProfileRequest.class, Profile.class)
-                .addMappings(mapper -> mapper.skip(Profile::setAvatar))
-                .addMappings(mapper -> mapper.skip(Profile::setAvatarKey));
-
-        localModelMapper.map(profileRequest, profile);
     }
 }
