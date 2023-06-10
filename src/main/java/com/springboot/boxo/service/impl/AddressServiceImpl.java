@@ -52,9 +52,8 @@ public class AddressServiceImpl implements AddressService {
 
         double distance = cityService.calculateDistance(addressRequest.getCityId());
         address.setDistance(distance);
-
         address.setUser(userRepository.findById(userId).orElseThrow(() -> new RuntimeException(MessageFormat.format(ADDRESS_NOT_FOUND_ERROR_MESSAGE_TEMPLATE, userId))));
-
+        address.setCity(cityRepository.findById(addressRequest.getCityId()).orElseThrow());
         return mapToDTO(addressRepository.save(address));
     }
 
