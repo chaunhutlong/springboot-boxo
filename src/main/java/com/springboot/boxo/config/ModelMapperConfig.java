@@ -1,13 +1,7 @@
 package com.springboot.boxo.config;
 
-import com.springboot.boxo.entity.Book;
-import com.springboot.boxo.entity.Order;
-import com.springboot.boxo.entity.Payment;
-import com.springboot.boxo.entity.Shipping;
-import com.springboot.boxo.payload.dto.OrderDTO;
-import com.springboot.boxo.payload.dto.PaymentDTO;
-import com.springboot.boxo.payload.dto.ShippingDTO;
-import com.springboot.boxo.payload.dto.ShortBookDTO;
+import com.springboot.boxo.entity.*;
+import com.springboot.boxo.payload.dto.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.context.annotation.Bean;
@@ -49,6 +43,16 @@ public class ModelMapperConfig {
         });
 
         modelMapper.addMappings(new PropertyMap<Book, ShortBookDTO>() {
+            @Override
+            protected void configure() {
+                map().setCreateDate(String.valueOf(source.getCreatedDate()));
+                map().setUpdateDate(String.valueOf(source.getLastModifiedDate()));
+                map().setCreateBy(source.getCreatedBy());
+                map().setUpdateBy(source.getLastModifiedBy());
+            }
+        });
+
+        modelMapper.addMappings(new PropertyMap<Post, PostDTO>() {
             @Override
             protected void configure() {
                 map().setCreateDate(String.valueOf(source.getCreatedDate()));
