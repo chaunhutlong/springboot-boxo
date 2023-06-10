@@ -3,9 +3,11 @@ package com.springboot.boxo.controller;
 import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.payload.dto.NotificationDTO;
 import com.springboot.boxo.payload.request.NotificationRequest;
+import com.springboot.boxo.security.CustomUserDetails;
 import com.springboot.boxo.service.NotificationService;
 import com.springboot.boxo.utils.AppConstants;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -36,10 +38,11 @@ public class NotificationController {
 
     @GetMapping
     public ResponseEntity<PaginationResponse<NotificationDTO>> getNotifications(
-            @RequestParam Long userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNumber,
             @RequestParam(value = "limit", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize)
     {
+        Long userId = userDetails.getUserId();
         return ResponseEntity.ok(notificationService.getNotifications(userId, pageNumber, pageSize));
     }
 }
