@@ -16,6 +16,8 @@ public class BookDTO {
     private int availableQuantity;
     private double price;
     private Double priceDiscount;
+    private double rating;
+    private int ratingCount;
     private PublisherDTO publisher;
     private Set<AuthorDTO> authors;
     private Set<GenreDTO> genres;

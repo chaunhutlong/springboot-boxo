@@ -1,6 +1,5 @@
 package com.springboot.boxo.service.impl;
 
-import com.springboot.boxo.entity.Cart;
 import com.springboot.boxo.entity.Profile;
 import com.springboot.boxo.entity.Role;
 import com.springboot.boxo.entity.User;
@@ -12,25 +11,26 @@ import com.springboot.boxo.payload.dto.UserDTO;
 import com.springboot.boxo.payload.request.LoginGoogleRequest;
 import com.springboot.boxo.payload.request.LoginRequest;
 import com.springboot.boxo.payload.request.RegisterRequest;
-import com.springboot.boxo.repository.CartRepository;
 import com.springboot.boxo.repository.ProfileRepository;
 import com.springboot.boxo.repository.RoleRepository;
 import com.springboot.boxo.repository.UserRepository;
 import com.springboot.boxo.security.JwtTokenProvider;
 import com.springboot.boxo.service.AuthService;
 import com.springboot.boxo.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -45,7 +45,6 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ProfileRepository profileRepository;
-    private final CartRepository cartRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
@@ -55,14 +54,14 @@ public class AuthServiceImpl implements AuthService {
     public AuthServiceImpl(AuthenticationManager authenticationManager,
                            UserRepository userRepository,
                            RoleRepository roleRepository,
-                           ProfileRepository profileRepository, CartRepository cartRepository, PasswordEncoder passwordEncoder,
+                           ProfileRepository profileRepository,
+                           PasswordEncoder passwordEncoder,
                            JwtTokenProvider jwtTokenProvider,
                            UserService userService, ModelMapper modelMapper) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.profileRepository = profileRepository;
-        this.cartRepository = cartRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
@@ -116,22 +115,25 @@ public class AuthServiceImpl implements AuthService {
         roles.add(userRole);
         user.setRoles(roles);
 
-        // create profile
         Profile profile = new Profile();
         user.setProfile(profile);
         userRepository.save(user);
 
-        // login after register
         return loginWithIdentityAndPassword(new LoginRequest(registerRequest.getUsername(), registerRequest.getPassword()));
     }
 
     @Override
-    public AuthResponse loginWithGoogle(LoginGoogleRequest loginGoogleRequest) {
-        RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());
+    public AuthResponse loginWithGoogle(HttpServletRequest request, LoginGoogleRequest loginGoogleRequest) {
+        RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(accessToken);
+        headers.setBearerAuth(loginGoogleRequest.getAccessToken());
 
-        ResponseEntity<UserInfoResponse> responseEntity = restTemplate.exchange(USER_INFO_URL, HttpMethod.GET, null, UserInfoResponse.class);
+        ResponseEntity<UserInfoResponse> responseEntity = restTemplate.exchange(
+                USER_INFO_URL,
+                HttpMethod.GET,
+                new HttpEntity<>(headers),
+                UserInfoResponse.class
+        );
         UserInfoResponse userInfoResponse = responseEntity.getBody();
 
         if (userInfoResponse == null) {
@@ -147,15 +149,27 @@ public class AuthServiceImpl implements AuthService {
         if (user == null) {
             String username = extractUsernameFromEmail(email);
             user = userService.createUser(email, username, name);
+            user.setPassword(passwordEncoder.encode("123456"));
+            Set<Role> roles = new HashSet<>();
+            Role userRole = roleRepository.findByName(RoleName.ROLE_USER.name())
+                    .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "User Role not set."));
+            roles.add(userRole);
+            user.setRoles(roles);
+            userRepository.save(user);
             createProfile(picture);
-            createCart(user.getId());
         }
+
+        UserDetails userDetails = buildUserDetails(user);
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, "123456", userDetails.getAuthorities());
+        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         AuthResponse authResponse = new AuthResponse();
         authResponse.setUser(convertToDTO(user));
-        authResponse.setAccessToken(jwtTokenProvider.generateToken(
+        authResponse.setAccessToken(jwtTokenProvider.generateToken(authentication));
 
-
+        return authResponse;
     }
 
     private void createProfile(String avatar) {
@@ -164,18 +178,34 @@ public class AuthServiceImpl implements AuthService {
         profileRepository.save(profile);
     }
 
-    private void createCart(Long userId) {
-        Cart cart = new Cart();
-        cart.setUser(userRepository.findById(userId).orElseThrow());
-        cartRepository.save(cart);
-    }
-
     private String extractUsernameFromEmail(String email) {
         int atIndex = email.indexOf('@');
         if (atIndex != -1) {
             return email.substring(0, atIndex);
         }
         return email;
+    }
+
+    private UserDetails buildUserDetails(User user) {
+        boolean enabled = true;
+        boolean accountNonExpired = true;
+        boolean credentialsNonExpired = true;
+        boolean accountNonLocked = true;
+        Set<Role> roles = user.getRoles();
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        for (Role role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        }
+
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                "123456",
+                enabled,
+                accountNonExpired,
+                credentialsNonExpired,
+                accountNonLocked,
+                authorities
+        );
     }
 
     private UserDTO convertToDTO(User user) {

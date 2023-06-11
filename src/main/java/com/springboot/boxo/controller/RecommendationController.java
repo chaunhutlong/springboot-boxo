@@ -1,9 +1,7 @@
 package com.springboot.boxo.controller;
 
-import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.payload.dto.BookDTO;
 import com.springboot.boxo.repository.RecommendationService;
-import com.springboot.boxo.utils.AppConstants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,12 +27,10 @@ public class RecommendationController {
 
     // Recommendation by book id
     @GetMapping("/books/{bookId}")
-    public ResponseEntity<PaginationResponse<BookDTO>> getRecommendationsByBookId(
-            @PathVariable(value = "bookId") Long bookId,
-            @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER, required = false) int pageNumber,
-            @RequestParam(value = "limit", defaultValue = AppConstants.DEFAULT_PAGE_SIZE, required = false) int pageSize)
+    public ResponseEntity<List<BookDTO>> getRecommendationsByBookId(
+            @PathVariable(value = "bookId") Long bookId)
     {
-        return ResponseEntity.ok(recommendationService.getRecommendationsByBookId(bookId, pageNumber, pageSize));
+        return ResponseEntity.ok(recommendationService.getRecommendationsByBookId(bookId));
     }
 
     // Recommendation Home Page

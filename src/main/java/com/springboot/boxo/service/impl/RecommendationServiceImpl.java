@@ -3,13 +3,13 @@ package com.springboot.boxo.service.impl;
 import com.springboot.boxo.entity.Book;
 import com.springboot.boxo.entity.Genre;
 import com.springboot.boxo.entity.Review;
-import com.springboot.boxo.payload.PaginationResponse;
 import com.springboot.boxo.payload.dto.BookDTO;
 import com.springboot.boxo.payload.dto.PythonBookDTO;
 import com.springboot.boxo.payload.dto.PythonReviewDTO;
 import com.springboot.boxo.payload.dto.RecommendationDTO;
 import com.springboot.boxo.repository.BookRepository;
 import com.springboot.boxo.repository.RecommendationService;
+import com.springboot.boxo.repository.ReviewRepository;
 import com.springboot.boxo.service.PythonServerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -22,11 +22,13 @@ import java.util.stream.Collectors;
 public class RecommendationServiceImpl implements RecommendationService {
     private final PythonServerService pythonServerService;
     private final BookRepository bookRepository;
+    private final ReviewRepository reviewRepository;
     private final ModelMapper modelMapper;
 
-    public RecommendationServiceImpl(PythonServerService pythonServerService, BookRepository bookRepository, ModelMapper modelMapper) {
+    public RecommendationServiceImpl(PythonServerService pythonServerService, BookRepository bookRepository, ReviewRepository reviewRepository, ModelMapper modelMapper) {
         this.pythonServerService = pythonServerService;
         this.bookRepository = bookRepository;
+        this.reviewRepository = reviewRepository;
         this.modelMapper = modelMapper;
     }
     @Override
@@ -60,19 +62,10 @@ public class RecommendationServiceImpl implements RecommendationService {
         return sortedBooks.stream().map(this::mapToBookDTO).toList();
     }
 
-    public PaginationResponse<BookDTO> getRecommendationsByBookId(Long bookId, int pageNumber, int pageSize) {
-        List<RecommendationDTO> bookDTOList = pythonServerService.getRecommendationsByBookId(bookId, pageNumber, pageSize);
-        List<BookDTO> sortedBooks = getSortedBooks(bookDTOList);
+    public List<BookDTO> getRecommendationsByBookId(Long bookId) {
+        List<RecommendationDTO> bookDTOList = pythonServerService.getRecommendationsByBookId(bookId);
 
-        PaginationResponse<BookDTO> response = new PaginationResponse<>();
-        response.setDatas(sortedBooks);
-        response.setLimit(pageSize);
-        response.setPage(pageNumber);
-        response.setTotalResults(100);
-        response.setTotalPages(100 / pageSize + 1);
-        response.setLast(pageNumber == 100 / pageSize + 1);
-
-        return response;
+        return getSortedBooks(bookDTOList);
     }
 
     @Override
@@ -99,7 +92,24 @@ public class RecommendationServiceImpl implements RecommendationService {
         return pythonReviewDTO;
     }
 
+    private BookDTO mapBookRating(BookDTO bookDTO) {
+        List<Review> reviews = reviewRepository.findByBookId(bookDTO.getId());
+
+        if (!reviews.isEmpty()) {
+            double averageRating = reviews.stream()
+                    .mapToDouble(Review::getRating)
+                    .average()
+                    .orElse(0.0);
+            bookDTO.setRating(averageRating);
+        }
+
+        bookDTO.setRatingCount(reviews.size());
+
+        return bookDTO;
+    }
+
     private BookDTO mapToBookDTO(Book book) {
-        return modelMapper.map(book, BookDTO.class);
+        BookDTO bookDTO = modelMapper.map(book, BookDTO.class);
+        return mapBookRating(bookDTO);
     }
 }

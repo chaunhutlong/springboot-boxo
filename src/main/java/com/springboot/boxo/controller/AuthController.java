@@ -1,9 +1,11 @@
 package com.springboot.boxo.controller;
 
 import com.springboot.boxo.payload.AuthResponse;
+import com.springboot.boxo.payload.request.LoginGoogleRequest;
 import com.springboot.boxo.payload.request.LoginRequest;
 import com.springboot.boxo.payload.request.RegisterRequest;
 import com.springboot.boxo.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,8 +36,8 @@ public class AuthController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<AuthResponse> loginWithGoogle(@RequestBody LoginGoogleRequest loginGoogleRequest) {
-        return ResponseEntity.ok(authService.loginWithGoogle(loginGoogleRequest));
+    public ResponseEntity<AuthResponse> loginWithGoogle(HttpServletRequest request, @RequestBody LoginGoogleRequest loginGoogleRequest){
+        return ResponseEntity.ok(authService.loginWithGoogle(request, loginGoogleRequest));
     }
 
 }

@@ -48,6 +48,7 @@ public class BookServiceImpl implements BookService {
     private final GenreRepository genreRepository;
     private final AuthorRepository authorRepository;
     private final BookImageRepository bookImageRepository;
+    private final ReviewRepository reviewRepository;
     private final ModelMapper modelMapper;
     private final StorageService storageService;
     private final PythonServerService pythonServerService;
@@ -55,12 +56,13 @@ public class BookServiceImpl implements BookService {
     private final ModelMapper updateBookModelMapper;
 
     @Autowired
-    public BookServiceImpl(BookRepository bookRepository, PublisherRepository publisherRepository, GenreRepository genreRepository, AuthorRepository authorRepository, BookImageRepository bookImageRepository, ModelMapper modelMapper, StorageService storageService, PythonServerService pythonServerService) {
+    public BookServiceImpl(BookRepository bookRepository, PublisherRepository publisherRepository, GenreRepository genreRepository, AuthorRepository authorRepository, BookImageRepository bookImageRepository, ReviewRepository reviewRepository, ModelMapper modelMapper, StorageService storageService, PythonServerService pythonServerService) {
         this.bookRepository = bookRepository;
         this.publisherRepository = publisherRepository;
         this.genreRepository = genreRepository;
         this.authorRepository = authorRepository;
         this.bookImageRepository = bookImageRepository;
+        this.reviewRepository = reviewRepository;
         this.modelMapper = modelMapper;
         this.storageService = storageService;
         this.pythonServerService = pythonServerService;
@@ -547,6 +549,22 @@ public class BookServiceImpl implements BookService {
         Optional.ofNullable(genreIds).ifPresent(ids -> mapGenres(book, ids));
     }
 
+    private BookDTO mapBookRating(BookDTO bookDTO) {
+        List<Review> reviews = reviewRepository.findByBookId(bookDTO.getId());
+
+        if (!reviews.isEmpty()) {
+            double averageRating = reviews.stream()
+                    .mapToDouble(Review::getRating)
+                    .average()
+                    .orElse(0.0);
+            bookDTO.setRating(averageRating);
+        }
+
+        bookDTO.setRatingCount(reviews.size());
+
+        return bookDTO;
+    }
+
     private Book mapBookRequestToCreateBook(BookRequest bookRequest) {
         Book book = createBookModelMapper.map(bookRequest, Book.class);
         mapBookRequestToBook(bookRequest, book);
@@ -647,6 +665,7 @@ public class BookServiceImpl implements BookService {
     }
 
     private BookDTO mapToDTO(Book book) {
-        return modelMapper.map(book, BookDTO.class);
+        BookDTO bookDTO = modelMapper.map(book, BookDTO.class);
+        return mapBookRating(bookDTO);
     }
 }

@@ -84,10 +84,10 @@ public class PythonServerService {
         restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
     }
 
-    public List<RecommendationDTO> getRecommendationsByBookId(Long bookId, int page, int limit) {
+    public List<RecommendationDTO> getRecommendationsByBookId(Long bookId) {
         // Prepare the request URL
         // default limit = 10, default page = 1
-        String url = "http://localhost:5000/recommendations/books/" + bookId + "?page=" + page + "&limit=" + limit;
+        String url = "http://localhost:5000/recommendations/books/" + bookId;
 
         // Send the GET request to the Python server
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
