@@ -135,6 +135,15 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    public void removeCheckedItemsFromCart(Long userId) {
+        List<Cart> cart = cartRepository.findByUserIdAndChecked(userId, true);
+
+        if (!cart.isEmpty()) {
+            cartRepository.deleteAll(cart);
+        }
+    }
+
+    @Override
     public HttpStatus updateCartCheckStatus(Long userId, Long bookId, boolean checkStatus) {
         Cart cart = cartRepository.findByUserIdAndBookId(userId, bookId).orElse(null);
 

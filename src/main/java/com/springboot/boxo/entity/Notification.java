@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,9 +24,8 @@ public class Notification {
     private String content;
     @Enumerated(EnumType.STRING)
     private NotificationType type;
-    private boolean isRead;
-    @Column(nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private java.sql.Timestamp createdDate;
+    private boolean isRead = false;
+    private LocalDateTime createdDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

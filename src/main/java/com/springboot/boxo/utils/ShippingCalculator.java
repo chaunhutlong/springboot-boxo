@@ -25,7 +25,7 @@ public class ShippingCalculator {
         }
 
 
-        shippingCost = Math.ceil(shippingCost);
+        shippingCost = Math.ceil(shippingCost * 1000);
 
         return shippingCost;
     }

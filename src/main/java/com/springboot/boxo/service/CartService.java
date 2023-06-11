@@ -9,6 +9,7 @@ public interface CartService {
     HttpStatus updateCart(Long userId, Long bookId, int quantity);
     HttpStatus removeItemFromCart(Long userId, Long bookId);
     HttpStatus clearCart(Long userId);
+    void removeCheckedItemsFromCart(Long userId);
     HttpStatus updateCartCheckStatus(Long userId, Long bookId, boolean checkStatus);
     HttpStatus updateAllCartCheckStatus(Long userId, boolean checkStatus);
 }

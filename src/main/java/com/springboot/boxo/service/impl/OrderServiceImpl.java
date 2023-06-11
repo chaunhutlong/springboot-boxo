@@ -87,7 +87,7 @@ public class OrderServiceImpl implements OrderService {
                 address, shippingCost, paymentType);
 
         updateBookQuantity(carts);
-        cartService.clearCart(userId);
+        cartService.removeCheckedItemsFromCart(userId);
 
         var bodyNotification = "Your order with tracking number " + result.getValue().getTrackingNumber() + " has been placed";
         NotificationRequest notificationRequest = new NotificationRequest(
