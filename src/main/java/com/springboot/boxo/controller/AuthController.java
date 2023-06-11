@@ -33,4 +33,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(registerDto));
     }
 
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponse> loginWithGoogle(@RequestBody LoginGoogleRequest loginGoogleRequest) {
+        return ResponseEntity.ok(authService.loginWithGoogle(loginGoogleRequest));
+    }
+
 }
