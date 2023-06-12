@@ -217,6 +217,12 @@ public class AuthServiceImpl implements AuthService {
                 throw new CustomException(HttpStatus.BAD_REQUEST, "Token is invalid!.");
             }
 
+            LocalDateTime expiredDate = user.getResetPasswordTokenExpiredDate();
+
+            if (LocalDateTime.now().isAfter(expiredDate)) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, "Token is expired!.");
+            }
+
             user.setPassword(passwordEncoder.encode(password));
             user.setResetPasswordToken(null);
 
@@ -231,7 +237,7 @@ public class AuthServiceImpl implements AuthService {
         SecureRandom random = new SecureRandom();
         byte[] tokenBytes = new byte[32];
         random.nextBytes(tokenBytes);
-        return Base64.getEncoder().encodeToString(tokenBytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
     }
 
     private void createProfile(String avatar) {
