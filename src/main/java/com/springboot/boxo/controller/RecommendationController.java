@@ -1,6 +1,7 @@
 package com.springboot.boxo.controller;
 
 import com.springboot.boxo.payload.dto.BookDTO;
+import com.springboot.boxo.payload.request.SearchImageRequest;
 import com.springboot.boxo.repository.RecommendationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,5 +39,12 @@ public class RecommendationController {
     public ResponseEntity<List<BookDTO>> getRecommendationsHomePage()
     {
         return ResponseEntity.ok(recommendationService.getRecommendationsHomePage());
+    }
+
+    @PostMapping("/image")
+    public ResponseEntity<List<BookDTO>> getRecommendationsByImage(
+            @ModelAttribute SearchImageRequest image)
+    {
+        return ResponseEntity.ok(recommendationService.getRecommendationsByImage(image));
     }
 }

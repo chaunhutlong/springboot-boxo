@@ -8,10 +8,7 @@ import com.springboot.boxo.exception.CustomException;
 import com.springboot.boxo.payload.AuthResponse;
 import com.springboot.boxo.payload.UserInfoResponse;
 import com.springboot.boxo.payload.dto.UserDTO;
-import com.springboot.boxo.payload.request.ForgotPasswordRequest;
-import com.springboot.boxo.payload.request.LoginGoogleRequest;
-import com.springboot.boxo.payload.request.LoginRequest;
-import com.springboot.boxo.payload.request.RegisterRequest;
+import com.springboot.boxo.payload.request.*;
 import com.springboot.boxo.repository.ProfileRepository;
 import com.springboot.boxo.repository.RoleRepository;
 import com.springboot.boxo.repository.UserRepository;
@@ -32,11 +29,11 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
@@ -166,9 +163,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         UserDetails userDetails = buildUserDetails(user);
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                userDetails, "123456", userDetails.getAuthorities());
-        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails, userDetails.getPassword(), userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         AuthResponse authResponse = new AuthResponse();
@@ -190,14 +186,39 @@ public class AuthServiceImpl implements AuthService {
             // Generate token
             String token = generateToken();
 
+            // Set expired date 15 minutes
+            LocalDateTime expiredDate = LocalDateTime.now().plusMinutes(15);
+
             // Save token to database
             user.setResetPasswordToken(token);
+            user.setResetPasswordTokenExpiredDate(expiredDate);
 
             // Send email
             String subject = "Reset password";
             String content = "Please click the link below to reset your password: \n"
                     + "http://localhost:8080/api/auth/reset-password?token=" + token;
             emailService.sendEmail(email, subject, content);
+
+            userRepository.save(user);
+
+        } catch (Exception e) {
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @Override
+    public void resetPassword(String token, ResetPasswordRequest resetPasswordRequest) {
+        try {
+            String password = resetPasswordRequest.getPassword();
+
+            User user = userRepository.findUserByResetPasswordToken(token);
+
+            if (user == null) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, "Token is invalid!.");
+            }
+
+            user.setPassword(passwordEncoder.encode(password));
+            user.setResetPasswordToken(null);
 
             userRepository.save(user);
 
@@ -240,7 +261,7 @@ public class AuthServiceImpl implements AuthService {
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
-                "123456",
+                user.getPassword(),
                 enabled,
                 accountNonExpired,
                 credentialsNonExpired,

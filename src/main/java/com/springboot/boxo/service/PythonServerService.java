@@ -3,9 +3,7 @@ package com.springboot.boxo.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springboot.boxo.entity.BookImage;
-import com.springboot.boxo.payload.dto.PythonBookDTO;
-import com.springboot.boxo.payload.dto.PythonReviewDTO;
-import com.springboot.boxo.payload.dto.RecommendationDTO;
+import com.springboot.boxo.payload.dto.*;
 import com.springboot.boxo.payload.request.PythonEmbeddingBooksRequest;
 import com.springboot.boxo.repository.BookImageRepository;
 import lombok.AllArgsConstructor;
@@ -14,7 +12,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -110,6 +111,32 @@ public class PythonServerService {
 
         // Send the GET request to the Python server
         ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
+        String responseBody = responseEntity.getBody();
+
+        // Deserialize the JSON response using ObjectMapper
+        try {
+            return objectMapper.readValue(responseBody, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            // Handle the exception appropriately
+        }
+        return Collections.emptyList();
+    }
+
+    public List<ImageSimilarityDTO> getRecommendationsByImage(MultipartFile image) {
+        String url = "http://localhost:5000/visual-search";
+
+        // Set the request headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        // Build the request entity with the headers and body
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("image", image.getResource());
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        // Send the POST request to the Python server
+        ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
         String responseBody = responseEntity.getBody();
 
         // Deserialize the JSON response using ObjectMapper

@@ -1,19 +1,12 @@
 package com.springboot.boxo.controller;
 
 import com.springboot.boxo.payload.AuthResponse;
-import com.springboot.boxo.payload.request.ForgotPasswordRequest;
-import com.springboot.boxo.payload.request.LoginGoogleRequest;
-import com.springboot.boxo.payload.request.LoginRequest;
-import com.springboot.boxo.payload.request.RegisterRequest;
+import com.springboot.boxo.payload.request.*;
 import com.springboot.boxo.service.AuthService;
-import com.springboot.boxo.service.EmailService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("${spring.data.rest.base-path}/auth")
@@ -44,15 +37,15 @@ public class AuthController {
 
     // Build Forgot Password REST API
     @PostMapping("/forgot-password")
-    public ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest){
-        authService.forgotPassword(forgotPasswordRequest);
+    public ResponseEntity<Void> forgotPassword(@RequestBody ForgotPasswordRequest request){
+        authService.forgotPassword(request);
         return ResponseEntity.ok().build();
     }
 
     // Build Reset Password REST API
     @PostMapping("/reset-password")
-    public ResponseEntity<Void> resetPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest){
-        authService.resetPassword(forgotPasswordRequest);
+    public ResponseEntity<Void> resetPassword(@RequestParam(value = "token") String token, @RequestBody ResetPasswordRequest request){
+        authService.resetPassword(token, request);
         return ResponseEntity.ok().build();
     }
 

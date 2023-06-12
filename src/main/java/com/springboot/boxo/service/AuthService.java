@@ -1,10 +1,7 @@
 package com.springboot.boxo.service;
 
 import com.springboot.boxo.payload.AuthResponse;
-import com.springboot.boxo.payload.request.ForgotPasswordRequest;
-import com.springboot.boxo.payload.request.LoginGoogleRequest;
-import com.springboot.boxo.payload.request.LoginRequest;
-import com.springboot.boxo.payload.request.RegisterRequest;
+import com.springboot.boxo.payload.request.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 public interface AuthService {
@@ -12,4 +9,5 @@ public interface AuthService {
     AuthResponse register(RegisterRequest registerDto);
     AuthResponse loginWithGoogle(HttpServletRequest request, LoginGoogleRequest loginGoogleDto);
     void forgotPassword(ForgotPasswordRequest forgotPasswordRequest);
+    void resetPassword(String token, ResetPasswordRequest request);
 }
