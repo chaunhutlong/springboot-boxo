@@ -200,7 +200,7 @@ public class AuthServiceImpl implements AuthService {
             String subject = "Reset password";
             // front end url
             String content = "Please click the link below to reset your password: \n"
-                    + frontEndUrl + "/reset-password/" + token;
+                    + frontEndUrl + "/reset-password/" + "?token=" + token;
             emailService.sendEmail(email, subject, content);
 
             userRepository.save(user);
