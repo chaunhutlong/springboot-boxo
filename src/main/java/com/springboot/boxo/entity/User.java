@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Setter
@@ -41,4 +42,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "discount_id", referencedColumnName = "id")
     )
     private Set<Discount> discounts;
+
+    private String resetPasswordToken;
+
+    private LocalDateTime resetPasswordTokenExpiryDate;
 }

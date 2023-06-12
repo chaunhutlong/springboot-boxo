@@ -9,5 +9,7 @@ public interface UserService {
     UserDTO findById(Long id);
     User createUser(String email, String username, String name);
     UserDTO findByUsernameOrEmail(String email, String username);
-//    void fakeUsers(int quantity);
+    UserDTO seedUser();
+
+    void seedUsers();
 }

@@ -8,6 +8,7 @@ import com.springboot.boxo.exception.CustomException;
 import com.springboot.boxo.payload.AuthResponse;
 import com.springboot.boxo.payload.UserInfoResponse;
 import com.springboot.boxo.payload.dto.UserDTO;
+import com.springboot.boxo.payload.request.ForgotPasswordRequest;
 import com.springboot.boxo.payload.request.LoginGoogleRequest;
 import com.springboot.boxo.payload.request.LoginRequest;
 import com.springboot.boxo.payload.request.RegisterRequest;
@@ -16,6 +17,7 @@ import com.springboot.boxo.repository.RoleRepository;
 import com.springboot.boxo.repository.UserRepository;
 import com.springboot.boxo.security.JwtTokenProvider;
 import com.springboot.boxo.service.AuthService;
+import com.springboot.boxo.service.EmailService;
 import com.springboot.boxo.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +36,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,6 +52,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
+    private final EmailService emailService;
     private final ModelMapper modelMapper;
 
     @Autowired
@@ -57,7 +62,7 @@ public class AuthServiceImpl implements AuthService {
                            ProfileRepository profileRepository,
                            PasswordEncoder passwordEncoder,
                            JwtTokenProvider jwtTokenProvider,
-                           UserService userService, ModelMapper modelMapper) {
+                           UserService userService, EmailService emailService, ModelMapper modelMapper) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -65,6 +70,7 @@ public class AuthServiceImpl implements AuthService {
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userService = userService;
+        this.emailService = emailService;
         this.modelMapper = modelMapper;
     }
 
@@ -170,6 +176,41 @@ public class AuthServiceImpl implements AuthService {
         authResponse.setAccessToken(jwtTokenProvider.generateToken(authentication));
 
         return authResponse;
+    }
+
+    @Override
+    public void forgotPassword(ForgotPasswordRequest forgotPasswordRequest) {
+        try {
+            String email = forgotPasswordRequest.getEmail();
+            User user = userRepository.findUserByEmail(email);
+            if (user == null) {
+                throw new CustomException(HttpStatus.BAD_REQUEST, "Email is not exists!.");
+            }
+
+            // Generate token
+            String token = generateToken();
+
+            // Save token to database
+            user.setResetPasswordToken(token);
+
+            // Send email
+            String subject = "Reset password";
+            String content = "Please click the link below to reset your password: \n"
+                    + "http://localhost:8080/api/auth/reset-password?token=" + token;
+            emailService.sendEmail(email, subject, content);
+
+            userRepository.save(user);
+
+        } catch (Exception e) {
+            throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    private String generateToken() {
+        SecureRandom random = new SecureRandom();
+        byte[] tokenBytes = new byte[32];
+        random.nextBytes(tokenBytes);
+        return Base64.getEncoder().encodeToString(tokenBytes);
     }
 
     private void createProfile(String avatar) {
