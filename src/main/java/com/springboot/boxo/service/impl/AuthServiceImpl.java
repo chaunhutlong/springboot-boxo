@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.jetbrains.annotations.NotNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -40,6 +41,8 @@ import java.util.Set;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+    @Value("${fe.url}")
+    private String frontEndUrl;
     private static final String USER_INFO_URL = "https://www.googleapis.com/oauth2/v1/userinfo?alt=json";
 
     private final AuthenticationManager authenticationManager;
@@ -195,8 +198,9 @@ public class AuthServiceImpl implements AuthService {
 
             // Send email
             String subject = "Reset password";
+            // front end url
             String content = "Please click the link below to reset your password: \n"
-                    + "http://localhost:8080/api/auth/reset-password?token=" + token;
+                    + frontEndUrl + "/reset-password/" + token;
             emailService.sendEmail(email, subject, content);
 
             userRepository.save(user);
