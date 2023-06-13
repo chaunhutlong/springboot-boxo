@@ -109,6 +109,11 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Email is already exists!.");
         }
 
+        String password = registerRequest.getPassword();
+        if (!isPasswordValid(password)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Invalid password format.");
+        }
+
         User user = new User();
         user.setName(registerRequest.getName());
         user.setUsername(registerRequest.getUsername());
@@ -235,6 +240,12 @@ public class AuthServiceImpl implements AuthService {
         } catch (Exception e) {
             throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    }
+
+    private boolean isPasswordValid(String password) {
+        // At least 8 characters, containing uppercase, lowercase, and numbers.
+        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$";
+        return password.matches(passwordRegex);
     }
 
     private String generateToken() {
